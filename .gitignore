@@ -1,0 +1,19 @@
+# Node.js
+node_modules/
+.env
+package-lock.json
+
+# VSCode
+.vscode/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Mac / Linux
+.DS_Store
+
+# Build / Output
+dist/
+build/
