@@ -1,6 +1,8 @@
 // frontend/src/components/PolicyEntry.js
+
 import React, { useState } from 'react';
 import '../style.css';
+import { Link } from 'react-router-dom'; // for navigating to ChatPage
 
 const PolicyEntry = () => {
   const [insurance, setInsurance] = useState("");
@@ -14,10 +16,10 @@ const PolicyEntry = () => {
   };
 
   const insuranceProviders = [
-    "Star Health","ICICI Lombard","SBI General","HDFC ERGO","Aditya Birla Health",
-    "IFFCO Tokio","Niva Bupa","Digit Insurance","Bajaj Allianz","Reliance Health",
-    "Future Generali","New India Assurance","Oriental Insurance","United India Insurance",
-    "Tata AIG","Care Health","Chola MS","Liberty General","Manipal Cigna","Max Bupa"
+    "Star Health", "ICICI Lombard", "SBI General", "HDFC ERGO", "Aditya Birla Health",
+    "IFFCO Tokio", "Niva Bupa", "Digit Insurance", "Bajaj Allianz", "Reliance Health",
+    "Future Generali", "New India Assurance", "Oriental Insurance", "United India Insurance",
+    "Tata AIG", "Care Health", "Chola MS", "Liberty General", "Manipal Cigna", "Max Bupa"
   ];
 
   return (
@@ -46,6 +48,9 @@ const PolicyEntry = () => {
 
         <button type="submit">Submit</button>
       </form>
+
+      
+     
     </div>
   );
 };
