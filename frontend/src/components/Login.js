@@ -10,19 +10,26 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:5000/api/login", { email, password });
-      alert(res.data.msg);
-      localStorage.setItem("userId", res.data.userId);
-      localStorage.setItem("name", res.data.name);
-      navigate("/policyentry"); // <-- react-router navigation
-    } catch (err) {
-      alert(err.response?.data?.msg || "Error");
-    }
-  };
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await axios.post("http://localhost:5000/api/login", { email, password });
+    alert(res.data.msg);
+    localStorage.setItem("userId", res.data.userId);
+    localStorage.setItem("name", res.data.name);
+    localStorage.setItem("role", res.data.role);
 
+    if (res.data.role === "admin") {
+  navigate("/admindashboard"); // must match App.js route
+} else {
+  navigate("/policyentry");
+}
+
+
+  } catch (err) {
+    alert(err.response?.data?.msg || "Error");
+  }
+};
 
   return (
     <div className="form-container">

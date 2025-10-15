@@ -1,24 +1,36 @@
+// server.js
 require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 
 const app = express();
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
-app.use(bodyParser.json());
 
-// Connect to MongoDB
-mongoose.connect("mongodb+srv://22csec03_db_user:IPPqLpSUe0LurJkk@cluster0.30lj2xn.mongodb.net/policycare?retryWrites=true&w=majority&appName=Cluster0")
+// --- Middlewares ---
+app.use(
+  cors({
+    origin: '*', // in production replace '*' with your frontend origin, e.g. 'https://yourdomain.com'
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
+  })
+);
+
+// Express has built-in body parser
+app.use(express.json());
+
+// --- Connect to MongoDB (from .env) ---
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error("❌ MONGO_URI not set in .env");
+  process.exit(1);
+}
+
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected to Atlas"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
 
-// Models
+// --- Models (ensure these modules use module.exports) ---
 const User = require("./models/User");
 const Hospital = require("./models/Hospital");
 
@@ -35,7 +47,8 @@ app.post("/api/signup", async (req, res) => {
     if (exist) return res.status(400).json({ msg: "User already exists" });
 
     const hashed = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashed, address, state, aadhaar });
+    // default role is 'user' - admin accounts should be created separately
+    const newUser = new User({ name, email, password: hashed, address, state, aadhaar, role: "user" });
     await newUser.save();
 
     res.json({ msg: "Signup successful" });
@@ -49,22 +62,39 @@ app.post("/api/signup", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) return res.status(400).json({ msg: "Email and password required" });
+  if (!email || !password) {
+    return res.status(400).json({ msg: "Email and password required" });
+  }
 
   try {
+    // ✅ Step 1: Check if it's the Admin login
+    if (email === "admin@example.com" && password === "admin123") {
+      return res.json({
+        msg: "Admin login successful",
+        userId: "admin", // dummy id
+        name: "Admin",
+        role: "admin"
+      });
+    }
+
+    // ✅ Step 2: Normal User login check
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: "Invalid credentials" });
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(400).json({ msg: "Invalid credentials" });
 
-    res.json({ msg: "Login successful", userId: user._id, name: user.name });
+    res.json({
+      msg: "Login successful",
+      userId: user._id,
+      name: user.name,
+      role: user.role || "user"
+    });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
-
 // --------------------- Get Hospitals ---------------------
 app.get("/api/hospitals/:insurance", async (req, res) => {
   const { insurance } = req.params;
@@ -97,8 +127,11 @@ Provide detailed and structured responses about:
 Be factual, clear, and well-formatted using emojis and bullet points where helpful.
     `;
 
-    // Using native fetch (Node.js 18+)
-    const response = await fetch(
+    // Node 18+ has global fetch. If you're on older Node, install node-fetch and require it.
+    // const fetch = global.fetch || require('node-fetch');
+    const fetchFn = (typeof fetch !== "undefined") ? fetch : (await import('node-fetch')).default;
+
+    const response = await fetchFn(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
@@ -127,3 +160,26 @@ Be factual, clear, and well-formatted using emojis and bullet points where helpf
 // --------------------- Start Server ---------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// Fetch all users (for admin)
+app.get("/api/admin/users", async (req, res) => {
+  try {
+    const users = await User.find({}, "name email address state"); // only required fields
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+// Get all hospitals
+app.get("/api/admin/hospitals", async (req, res) => {
+  const hospitals = await db.collection("hospitals").distinct("hospitalName");
+  const hospitalList = hospitals.map(name => ({ hospitalName: name }));
+  res.json(hospitalList);
+});
+app.get("/api/admin/policies", async (req, res) => {
+  const providers = await db.collection("hospitals").distinct("insuranceProvider");
+  const policyList = providers.map(provider => ({ insuranceProvider: provider }));
+  res.json(policyList);
+});
+
+

@@ -6,7 +6,7 @@ import PolicyEntry from "./components/PolicyEntry";
 import HospitalList from "./components/HospitalList";
 import QRPage from "./components/QRPage";
 import TreatmentPage from "./components/TreatmentPage";
-
+import AdminDashboard from "./components/AdminDashboard";
 
 
 
@@ -45,6 +45,8 @@ function App() {
           <Route path="/hospitals" element={<HospitalList />} />
           <Route path="/qr" element={<QRPage />} />
           <Route path="/treatment" element={<TreatmentPage />} />
+<Route path="/admindashboard" element={<AdminDashboard/>} />
+
           
         </Routes>
       </Router>
