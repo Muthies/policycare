@@ -6,14 +6,44 @@ body {
     color: #333;
     min-height: 100vh;
 }
+.app-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #1e3a8a;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+}
 
-/* App Title */
+.app-subtitle {
+    font-size: 18px;
+    color: #1e40af;
+    margin-top: 10px;
+    font-weight: 700;
+}
+.action-buttons {
+  display: flex;
+  gap: 10px; /* space between buttons */
+}
+
+.action-buttons button {
+  flex: 1; /* make them equal width */
+  min-width: 100px; /* optional: ensures buttons don’t shrink too small */
+}
+
+
+/*
 .app-title {
     text-align: center;
     font-size: 48px;
     font-weight: 700;
     color: #ffffff;
     margin-top: 40px;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    
+}
+.app-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #1e3a8a;
     text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
 }
 
@@ -230,12 +260,7 @@ tr:hover {
     margin-bottom: 40px;
 }
 
-.app-title {
-    font-size: 48px;
-    font-weight: 700;
-    color: #1e3a8a;
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
-}
+
 
 .app-subtitle {
     font-size: 18px;
@@ -313,4 +338,125 @@ button:hover {
 .support-bot-button:hover {
   background: linear-gradient(135deg, #357ABD, #2E6EB5);
   transform: scale(1.05);
+}
+
+
+
+
+/* === Review Popup Styles === */
+.btn-review {
+  background-color: #ffb84d;
+  color: white;
+  padding: 8px 12px;
+  margin-left: 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-review:hover {
+  background-color: #ff9800;
+  transform: scale(1.05);
+}
+
+.review-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.review-card {
+  background: #fff;
+  width: 380px;
+  padding: 25px 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  animation: popupFadeIn 0.3s ease;
+}
+
+.review-card h3 {
+  color: #1e3a8a;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.review-card label {
+  font-weight: 600;
+  display: block;
+  margin-top: 10px;
+  color: #374151;
+}
+
+.review-card input[type="number"],
+.review-card textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 15px;
+  outline: none;
+}
+
+.review-card textarea {
+  height: 80px;
+  resize: none;
+}
+
+.review-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn-submit {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-submit:hover {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  transform: scale(1.05);
+}
+
+.btn-cancel {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-cancel:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
