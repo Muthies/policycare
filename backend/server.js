@@ -170,16 +170,32 @@ app.get("/api/admin/users", async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 });
-// Get all hospitals
+// server.js
+
+
+
+// Get all hospitals for admin
+// Get all hospitals for admin
 app.get("/api/admin/hospitals", async (req, res) => {
-  const hospitals = await db.collection("hospitals").distinct("hospitalName");
-  const hospitalList = hospitals.map(name => ({ hospitalName: name }));
-  res.json(hospitalList);
-});
-app.get("/api/admin/policies", async (req, res) => {
-  const providers = await db.collection("hospitals").distinct("insuranceProvider");
-  const policyList = providers.map(provider => ({ insuranceProvider: provider }));
-  res.json(policyList);
+  try {
+    const hospitals = await Hospital.find({}); // fetch all
+    res.json(hospitals);
+  } catch (err) {
+    console.error("Error fetching hospitals:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
 });
 
+const Review = require("./models/Review"); // create Review model if not already
+
+// --------------------- Get Reviews ---------------------
+app.get("/api/admin/reviews", async (req, res) => {
+  try {
+    const reviews = await Review.find();
+    res.json(reviews);
+  } catch (err) {
+    console.error("Error fetching reviews:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
 
