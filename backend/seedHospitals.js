@@ -8,6 +8,50 @@ const client = new MongoClient(uri, {
 });
 
 const hospitalData = [
+  // ------------------ Government Rajaji Hospital (GRH) ------------------
+  {
+    hospitalName: "Government Rajaji Hospital",
+    address: "Panagal Road, Madurai, Tamil Nadu",
+    location: { type: "Point", coordinates: [78.1304, 9.9269] },
+    insuranceProvider: "Tamil Nadu Government Health Scheme",
+    policyName: "Chief Minister's Comprehensive Health Insurance Scheme (CMCHIS)",
+    coverageType: "Family Floater",
+    cashlessAvailable: "Yes",
+    maxClaimAmount: 500000,
+    claimProcessTime: 7,
+    treatmentsCovered: [
+      "General Surgery",
+      "Orthopedic Surgery",
+      "Cardiology",
+      "Neurology",
+      "Pediatrics",
+      "Obstetrics and Gynecology",
+      "Emergency Medicine",
+      "Dialysis",
+      "Cancer Treatment",
+      "Plastic Surgery",
+      "Burns Care",
+      "Trauma Care",
+      "Mental Health Services",
+      "Transgender Health Services",
+      "Kidney Treatment",
+      "Pregnancy Care",
+      "Skin Treatment",
+      "Brain Surgery",
+      "Dental",
+      "Eye",
+      "ENT",
+      "Emergency Surgery"
+    ],
+    specialSchemes: [
+      "Chief Minister's Comprehensive Health Insurance Scheme (CMCHIS)",
+      "Innuyir Kappom – Nammai Kakkum 48",
+      "Janani Shishu Suraksha Karyakram (JSSK)",
+      "Rashtriya Bal Swasthya Karyakram (RBSK)",
+      "Anemia Mukt Bharat"
+    ]
+  },
+
   // ------------------ Apollo Hospital Madurai ------------------
   {
     hospitalName: "Apollo Hospital Madurai",
@@ -40,6 +84,24 @@ const hospitalData = [
       "Eye",
       "ENT",
       "Emergency Surgery"
+    ],
+    acceptedInsurance: [
+      "HDFC ERGO",
+      "ICICI Lombard",
+      "Star Health",
+      "SBI General",
+      "IFFCO Tokio",
+      "Kotak Mahindra",
+      "TATA AIG",
+      "New India Assurance",
+      "United India Insurance",
+      "ManipalCigna",
+      "Max Bupa (Niva Bupa)",
+      "Bajaj Allianz",
+      "Medi Assist",
+      "MD India",
+      "FHPL",
+      "Paramount"
     ]
   },
   {
@@ -101,6 +163,20 @@ const hospitalData = [
       "Dialysis",
       "X-ray",
       "Brain Surgery"
+    ],
+    acceptedInsurance: [
+      "Acko Health Insurance",
+      "Aditya Birla Health Insurance",
+      "Bajaj Allianz",
+      "Bharti AXA Health Insurance",
+      "Care Health Insurance",
+      "Future Generali India Insurance",
+      "IFFCO TOKIO",
+      "ICICI Lombard",
+      "Medi Assist TPA Pvt. Ltd.",
+      "Vidal Health Insurance TPA Pvt. Ltd.",
+      "Niva Bupa",
+      "Medsave Healthcare"
     ]
   },
   {
@@ -132,7 +208,7 @@ const hospitalData = [
     ]
   },
 
-  // ------------------ Rajamani Hospital Madurai ------------------
+  // ------------------ Rajamani Hospital ------------------
   {
     hospitalName: "Rajamani Hospital",
     address: "North Veli St, Madurai, Tamil Nadu",
@@ -160,6 +236,18 @@ const hospitalData = [
       "Skin Treatment",
       "Brain Surgery",
       "Kidney Treatment"
+    ],
+    acceptedInsurance: [
+      "MD India",
+      "ICICI Lombard",
+      "Star Health",
+      "Aditya Birla",
+      "SBI General",
+      "IFFCO Tokio",
+      "HDFC ERGO",
+      "Niva Bupa",
+      "Digit Insurance",
+      "Personal & Caring Insurance"
     ]
   },
   {
@@ -189,43 +277,6 @@ const hospitalData = [
       "Kidney Treatment",
       "Emergency Surgery"
     ]
-  },
-
-  // ------------------ Government Rajaji Hospital Madurai ------------------
-  {
-    hospitalName: "Government Rajaji Hospital",
-    address: "Panagal Road, Madurai, Tamil Nadu",
-    location: { type: "Point", coordinates: [78.1304, 9.9269] },
-    insuranceProvider: "Tamil Nadu Government Health Scheme",
-    policyName: "Chief Minister's Comprehensive Health Insurance Scheme",
-    coverageType: "Family Floater",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 500000,
-    claimProcessTime: 7,
-    treatmentsCovered: [
-      "General Surgery",
-      "Orthopedic Surgery",
-      "Cardiology",
-      "Neurology",
-      "Pediatrics",
-      "Obstetrics and Gynecology",
-      "Emergency Medicine",
-      "Dialysis",
-      "Cancer Treatment",
-      "Plastic Surgery",
-      "Burns Care",
-      "Trauma Care",
-      "Mental Health Services",
-      "Transgender Health Services",
-      "Kidney Treatment",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Brain Surgery",
-      "Dental",
-      "Eye",
-      "ENT",
-      "Emergency Surgery"
-    ]
   }
 ];
 
@@ -235,13 +286,13 @@ async function seed() {
     const db = client.db("policycare");
     const collection = db.collection("hospitals");
 
-    await collection.deleteMany({}); // clear old data
+    await collection.deleteMany({});
     const result = await collection.insertMany(hospitalData);
-
-    console.log(`Inserted ${result.insertedCount} hospital records`);
-    await client.close();
+    console.log(`✅ Inserted ${result.insertedCount} hospital records successfully`);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error seeding hospitals:", err);
+  } finally {
+    await client.close();
   }
 }
 

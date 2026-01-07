@@ -1,4 +1,3 @@
-// frontend/src/components/Signup.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../style.css';
@@ -19,6 +18,13 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Frontend Aadhaar validation
+    if (!/^\d{12}$/.test(form.aadhaar)) {
+      alert("Aadhaar must be 12 digits");
+      return;
+    }
+
     try {
       const res = await axios.post("http://localhost:5000/api/signup", form);
       alert(res.data.msg);
