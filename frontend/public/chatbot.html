@@ -255,13 +255,14 @@
 
         const data = await response.json();
         
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          addMessage(data.candidates[0].content.parts[0].text, "bot");
-        } else if (data.error) {
-          addMessage("⚠️ Error: " + data.error, "bot");
-        } else {
-          addMessage("⚠️ Sorry, no response. Please try again.", "bot");
-        }
+       if (data.reply) {
+  addMessage(data.reply, "bot");
+} else if (data.error) {
+  addMessage("⚠️ Error: " + data.error, "bot");
+} else {
+  addMessage("⚠️ Sorry, no response from server.", "bot");
+}
+
       } catch (err) {
         addMessage("❌ Connection Error: " + err.message, "bot");
       } finally {
@@ -269,20 +270,21 @@
       }
     }
 
-    function addMessage(text, sender) {
-      const chatContainer = document.getElementById('chatContainer');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${sender}`;
+   function addMessage(text, sender) {
+  const chatContainer = document.getElementById('chatContainer');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${sender}`;
 
-      const messageContent = document.createElement('div');
-      messageContent.className = 'message-content';
-      messageContent.textContent = text;
+  const messageContent = document.createElement('div');
+  messageContent.className = 'message-content';
+  messageContent.textContent = text;
 
-      messageDiv.appendChild(messageContent);
-      chatContainer.appendChild(messageDiv);
+  messageDiv.appendChild(messageContent);
+  chatContainer.appendChild(messageDiv);
 
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
 
     function showLoading(show) {
       const loading = document.getElementById('loading');

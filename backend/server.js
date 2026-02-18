@@ -1,60 +1,81 @@
-// server.js
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 
+// Routes
 const reviewRoutes = require("./routes/reviewRoutes");
+const hospitalRoutes = require("./routes/hospitalRoutes");
+
+// Models
+const User = require("./models/User");
+const Hospital = require("./models/Hospital");
+const Review = require("./models/Review");
 
 const app = express();
 
-// --- Middleware ---
+/* ===================== MIDDLEWARE ===================== */
 app.use(
   cors({
-    origin: '*', // For production, replace with frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
 app.use(express.json());
 
-// --- MongoDB Connection ---
-mongoose.connect(process.env.MONGODB_URI || "your-mongo-uri-here")
-  .then(() => console.log("✅ MongoDB Connected to Atlas"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+/* ===================== HEALTH CHECK ===================== */
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK" });
+});
 
-// --- Models ---
-const User = require("./models/User");
-const Hospital = require("./models/Hospital");
-const Review = require("./models/review"); // Add this if not already in use
+/* ===================== DATABASE ===================== */
+mongoose
+  .connect(process.env.MONGODB_URI || process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// --------------------- Signup Route ---------------------
+/* ===================== ROUTES ===================== */
+
+// Hospitals
+app.use("/api/hospitals", hospitalRoutes);
+
+// Reviews
+app.use("/api/reviews", reviewRoutes);
+
+/* ===================== AUTH ===================== */
+
+// Signup
 app.post("/api/signup", async (req, res) => {
   const { name, email, password, address, state, aadhaar } = req.body;
 
-  // Check all fields
   if (!name || !email || !password || !address || !state || !aadhaar) {
     return res.status(400).json({ msg: "All fields are required" });
   }
 
-  // Aadhaar format validation
-  const aadhaarRegex = /^\d{12}$/;
-  if (!aadhaarRegex.test(aadhaar)) {
+  if (!/^\d{12}$/.test(aadhaar)) {
     return res.status(400).json({ msg: "Aadhaar must be 12 digits" });
   }
 
   try {
-    const existEmail = await User.findOne({ email });
-    if (existEmail) return res.status(400).json({ msg: "Email already registered" });
+    if (await User.findOne({ email }))
+      return res.status(400).json({ msg: "Email already registered" });
 
-    const existAadhaar = await User.findOne({ aadhaar });
-    if (existAadhaar) return res.status(400).json({ msg: "Aadhaar already registered" });
+    if (await User.findOne({ aadhaar }))
+      return res.status(400).json({ msg: "Aadhaar already registered" });
 
     const hashed = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ name, email, password: hashed, address, state, aadhaar, role: "user" });
-    await newUser.save();
+    await new User({
+      name,
+      email,
+      password: hashed,
+      address,
+      state,
+      aadhaar,
+      role: "user",
+    }).save();
 
     res.json({ msg: "Signup successful" });
   } catch (err) {
@@ -63,13 +84,12 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-// --------------------- Login Route ---------------------
+// Login
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password)
     return res.status(400).json({ msg: "Email and password required" });
-  }
 
   try {
     // Admin login
@@ -78,11 +98,10 @@ app.post("/api/login", async (req, res) => {
         msg: "Admin login successful",
         userId: "admin",
         name: "Admin",
-        role: "admin"
+        role: "admin",
       });
     }
 
-    // Normal user login
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: "Invalid credentials" });
 
@@ -93,7 +112,7 @@ app.post("/api/login", async (req, res) => {
       msg: "Login successful",
       userId: user._id,
       name: user.name,
-      role: user.role || "user"
+      role: user.role || "user",
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -101,77 +120,76 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// --------------------- Get Hospitals by Insurance ---------------------
-app.get("/api/hospitals/:insurance", async (req, res) => {
-  const { insurance } = req.params;
-  try {
-    const hospitals = await Hospital.find({ insuranceProvider: insurance });
-    res.json(hospitals);
-  } catch (err) {
-    console.error("Hospital fetch error:", err);
-    res.status(500).json({ msg: "Server error" });
-  }
-});
-
-// --------------------- Final Chatbot Route (Gemini API) ---------------------
+/* ===================== CHATBOT ===================== */
 app.post("/api/chat", async (req, res) => {
   try {
     const { message } = req.body;
-    if (!message) return res.status(400).json({ error: "No message provided" });
 
-    const systemPrompt = `
-You are a helpful medical information assistant specializing in hospitals and healthcare. 
-Provide detailed and structured responses about:
-🏥 Hospital names, locations, and specialties
-👨‍⚕️ Doctor details including names, specializations, and experience
-📞 Contact numbers (realistic formats like +91-XXX-XXX-XXXX)
-💊 Treatment options and procedures
-⭐ Patient reviews and ratings
-💰 Insurance coverage and costs
+    if (!message) {
+      return res.status(400).json({ error: "Message required" });
+    }
 
-Be factual, clear, and well-formatted using emojis and bullet points where helpful.
-    `;
+    const fetchFn =
+      typeof fetch !== "undefined"
+        ? fetch
+        : (await import("node-fetch")).default;
 
-    const fetchFn = (typeof fetch !== "undefined") ? fetch : (await import('node-fetch')).default;
-
-    const response = await fetchFn(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    const geminiRes = await fetchFn(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: systemPrompt + "\n\nUser query: " + message }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+          contents: [
+            {
+              parts: [
+                {
+                  text: `You are a medical insurance assistant. Provide structured answers about hospitals, treatments, insurance coverage, and reviews.\n\nUser: ${message}`,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1024,
+          },
         }),
       }
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API Error:", errorText);
-      return res.status(500).json({ error: "Gemini API error: " + errorText });
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error("Gemini error:", errText);
+      return res.status(500).json({ error: "Gemini API error" });
     }
 
-    const data = await response.json();
-    res.json(data);
+    const data = await geminiRes.json();
+
+    const reply =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No response from Gemini";
+
+    res.json({ reply });
   } catch (err) {
     console.error("❌ Chatbot error:", err);
-    res.status(500).json({ error: "Something went wrong: " + err.message });
+    res.status(500).json({ error: "Chatbot failed" });
   }
 });
 
-// --------------------- Admin: Get All Hospitals ---------------------
+/* ===================== ADMIN ===================== */
+
+// All hospitals
 app.get("/api/admin/hospitals", async (req, res) => {
   try {
     const hospitals = await Hospital.find({});
     res.json(hospitals);
   } catch (err) {
-    console.error("Error fetching hospitals:", err);
+    console.error("Admin hospital error:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
 
-// --------------------- Admin: Get All Reviews ---------------------
+// All reviews
 app.get("/api/admin/reviews", async (req, res) => {
   try {
     const reviews = await Review.find()
@@ -179,14 +197,206 @@ app.get("/api/admin/reviews", async (req, res) => {
       .populate("hospital", "hospitalName address");
     res.json(reviews);
   } catch (err) {
-    console.error("Error fetching reviews:", err);
+    console.error("Admin review error:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
 
-// --------------------- Reviews API ---------------------
-app.use('/api/reviews', reviewRoutes);
-
-// --------------------- Start Server ---------------------
+/* ===================== START SERVER ===================== */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+
+/*
+
+
+
+
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bcrypt = require("bcryptjs");
+
+const reviewRoutes = require("./routes/reviewRoutes");
+
+const app = express();
+
+app.use(
+  cors({
+    origin: "*", 
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
+
+app.use(express.json());
+
+
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK" });
+});
+
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB error:", err));
+
+
+const User = require("./models/User");
+const Hospital = require("./models/Hospital");
+const Review = require("./models/review");
+
+
+app.post("/api/signup", async (req, res) => {
+  const { name, email, password, address, state, aadhaar } = req.body;
+
+  if (!name || !email || !password || !address || !state || !aadhaar) {
+    return res.status(400).json({ msg: "All fields are required" });
+  }
+
+  if (!/^\d{12}$/.test(aadhaar)) {
+    return res.status(400).json({ msg: "Aadhaar must be 12 digits" });
+  }
+
+  try {
+    if (await User.findOne({ email })) {
+      return res.status(400).json({ msg: "Email already registered" });
+    }
+
+    if (await User.findOne({ aadhaar })) {
+      return res.status(400).json({ msg: "Aadhaar already registered" });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    await new User({
+      name,
+      email,
+      password: hashed,
+      address,
+      state,
+      aadhaar,
+      role: "user",
+    }).save();
+
+    res.json({ msg: "Signup successful" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+
+app.post("/api/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    if (email === "admin@example.com" && password === "admin123") {
+      return res.json({
+        msg: "Admin login successful",
+        role: "admin",
+      });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: "Invalid credentials" });
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(400).json({ msg: "Invalid credentials" });
+
+    res.json({
+      msg: "Login successful",
+      userId: user._id,
+      name: user.name,
+      role: user.role,
+    });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+app.get("/api/hospitals/:insurance", async (req, res) => {
+  try {
+    const hospitals = await Hospital.find({
+      insuranceProvider: req.params.insurance,
+    });
+    res.json(hospitals);
+  } catch {
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: "Message required" });
+    }
+
+    const fetchFn =
+      typeof fetch !== "undefined"
+        ? fetch
+        : (await import("node-fetch")).default;
+
+    const geminiRes = await fetchFn(
+     ` https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text:`You are a medical assistant.\n\nUser: ${message}`, 
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    );
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error("Gemini error:", errText);
+      return res.status(500).json({ error: errText });
+    }
+
+    const data = await geminiRes.json();
+    const reply =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No response from Gemini";
+
+    res.json({ reply });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Chatbot failed" });
+  }
+});
+
+
+app.get("/api/admin/hospitals", async (_, res) => {
+  res.json(await Hospital.find());
+});
+
+app.get("/api/admin/reviews", async (_, res) => {
+  res.json(
+    await Review.find()
+      .populate("user", "name email")
+      .populate("hospital", "hospitalName address")
+  );
+});
+
+app.use("/api/reviews", reviewRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
+*/

@@ -1,41 +1,75 @@
 const express = require("express");
 const router = express.Router();
-const Review = require("../models/review");
+const Review = require("../models/Review");
+const Hospital = require("../models/Hospital");
 
-// Add a review
+/**
+ * SUBMIT REVIEW
+ */
 router.post("/", async (req, res) => {
   try {
-    const { userId, hospitalId, rating, comment } = req.body;
+    const { hospitalId, userId, rating, comment, treatment } = req.body;
 
-    if (!userId || !hospitalId || !rating) {
-      return res.status(400).json({ msg: "User, hospital, and rating are required" });
+    if (!hospitalId || !userId || !rating || !treatment) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
 
-    const newReview = new Review({
-      user: userId,
+    // Save review
+    const review = new Review({
       hospital: hospitalId,
+      user: userId,
       rating,
-      comment
+      comment,
+      treatment,
     });
 
-    await newReview.save();
-    res.json({ msg: "Review added successfully", review: newReview });
-  } catch (err) {
-    console.error("Error adding review:", err);
-    res.status(500).json({ msg: "Server error" });
-  }
-});
+    await review.save();
 
-// Get all reviews for a hospital
-router.get("/:hospitalId", async (req, res) => {
-  try {
-    const reviews = await Review.find({ hospital: req.params.hospitalId })
-      .populate("user", "name email")
-      .sort({ createdAt: -1 });
-    res.json(reviews);
+    // Update hospital treatmentRatings
+    const hospital = await Hospital.findById(hospitalId);
+
+    if (!hospital) {
+      return res.status(404).json({
+        message: "Hospital not found",
+      });
+    }
+
+    const index = hospital.treatmentRatings.findIndex(
+      (t) => t.treatment === treatment
+    );
+
+    if (index !== -1) {
+      const existing = hospital.treatmentRatings[index];
+
+      const newTotal = existing.totalReviews + 1;
+      const newAvg =
+        (existing.avgRating * existing.totalReviews + rating) /
+        newTotal;
+
+      hospital.treatmentRatings[index].avgRating = newAvg;
+      hospital.treatmentRatings[index].totalReviews = newTotal;
+    } else {
+      hospital.treatmentRatings.push({
+        treatment,
+        avgRating: rating,
+        totalReviews: 1,
+      });
+    }
+
+    await hospital.save();
+
+    res.status(201).json({
+      message: "Review submitted successfully",
+    });
+
   } catch (err) {
-    console.error("Error fetching reviews:", err);
-    res.status(500).json({ msg: "Server error" });
+    console.error("❌ Review error:", err);
+    res.status(500).json({
+      message: "Review submission failed",
+      error: err.message,
+    });
   }
 });
 

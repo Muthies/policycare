@@ -1,37 +1,69 @@
 // frontend/src/components/PolicyEntry.js
-import React, { useState } from 'react';
-import '../style.css';
-import { useNavigate } from 'react-router-dom'; // better than window.location.href
+import React, { useState } from "react";
+import "../style.css";
+import { useNavigate } from "react-router-dom";
 
 const PolicyEntry = () => {
   const navigate = useNavigate();
+
   const [insurance, setInsurance] = useState("");
   const [policyNo, setPolicyNo] = useState("");
   const [treatment, setTreatment] = useState("");
   const [error, setError] = useState("");
 
   const insuranceProviders = [
-    "Star Health", "ICICI Lombard", "SBI General", "HDFC ERGO", "Aditya Birla Health",
-    "IFFCO Tokio", "Niva Bupa", "Digit Insurance", "Bajaj Allianz", "Reliance Health",
-    "Future Generali", "New India Assurance", "Oriental Insurance", "United India Insurance",
-    "Tata AIG", "Care Health", "Chola MS", "Liberty General", "Manipal Cigna", "Max Bupa"
+    "Star Health",
+    "ICICI Lombard",
+    "SBI General",
+    "HDFC ERGO",
+    "Aditya Birla Health",
+    "IFFCO Tokio",
+    "Niva Bupa",
+    "Digit Insurance",
+    "Bajaj Allianz",
+    "Reliance Health",
+    "Future Generali",
+    "New India Assurance",
+    "Oriental Insurance",
+    "United India Insurance",
+    "Tata AIG",
+    "Care Health",
+    "Chola MS",
+    "Liberty General",
+    "Manipal Cigna",
+    "Max Bupa"
   ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError("");
 
-    // Check Star Health policy number length
-    if (insurance === "Star Health" && policyNo.length !== 10) {
-      setError("Star Health policy number must be 10 digits");
+    if (!insurance) {
+      setError("Please select an insurance provider");
       return;
     }
 
-    // Save to localStorage for hospitals page
-    localStorage.setItem("insurance", insurance);
-    localStorage.setItem("policyNo", policyNo);
-    localStorage.setItem("treatment", treatment);
+    // Star Health validation
+    if (insurance === "Star Health" && policyNo.trim().length !== 10) {
+      setError("Star Health policy number must be exactly 10 digits");
+      return;
+    }
 
-    // Navigate to hospitals page
+    // ✅ Normalize values
+    const normalizedInsurance = insurance.trim();
+    const normalizedTreatment =
+      treatment.trim() === "" ? null : treatment.trim();
+
+    // Save for hospital page
+    localStorage.setItem("insurance", normalizedInsurance);
+    localStorage.setItem("policyNo", policyNo.trim());
+
+    if (normalizedTreatment) {
+      localStorage.setItem("treatment", normalizedTreatment);
+    } else {
+      localStorage.removeItem("treatment");
+    }
+
     navigate("/hospitals");
   };
 
@@ -47,7 +79,9 @@ const PolicyEntry = () => {
         >
           <option value="">Select Insurance Provider</option>
           {insuranceProviders.map((ins) => (
-            <option key={ins} value={ins}>{ins}</option>
+            <option key={ins} value={ins}>
+              {ins}
+            </option>
           ))}
         </select>
 
@@ -61,14 +95,14 @@ const PolicyEntry = () => {
 
         <input
           type="text"
-          placeholder="Treatment (optional)"
+          placeholder="Treatment (optional – can sort later)"
           value={treatment}
           onChange={(e) => setTreatment(e.target.value)}
         />
 
         {error && <p className="error-msg">{error}</p>}
 
-        <button type="submit">Submit</button>
+        <button type="submit">Proceed</button>
       </form>
     </div>
   );

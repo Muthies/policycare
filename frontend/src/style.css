@@ -460,3 +460,16 @@ button:hover {
     transform: scale(1);
   }
 }
+.sort-buttons {
+  display: flex;
+  justify-content: space-between; /* spread evenly */
+  align-items: center;
+  gap: 20px;
+  margin: 15px 0 25px 0;
+}
+
+.sort-buttons button {
+  flex: 1;              /* equal width */
+  max-width: 200px;     /* prevents too large buttons */
+  text-align: center;
+}

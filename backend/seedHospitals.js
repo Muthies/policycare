@@ -6,277 +6,229 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
 const hospitalData = [
-  // ------------------ Government Rajaji Hospital (GRH) ------------------
+  // Aravind Eye Hospital
+  {
+    hospitalName: "Aravind Eye Hospital",
+    address: "Anna Nagar, Madurai, Tamil Nadu",
+    location: { type: "Point", coordinates: [78.1304, 9.9269] },
+    acceptedInsurance: [
+      "Star Health",
+      "HDFC ERGO",
+      "Bajaj Allianz",
+      "Apollo Munich",
+      "IFFCO Tokio",
+      "Universal Sompo",
+      "Ayushman Bharat (PMJAY)"
+    ],
+    policyName: "Multi-Insurance & Government Schemes",
+    coverageType: "Family Floater",
+    claimProcessTime: 7,
+    treatmentsCovered: [
+  "Cataract Surgery",
+  "Glaucoma Treatment",
+  "Retina Services",
+  "Diabetic Retinopathy",
+  "Eye Diagnostics",
+  "LASIK",
+  "Refractive Surgery",
+  "Cornea Treatment",
+  "Pediatric Ophthalmology",
+  "Oculoplasty",
+  "Eye Infection Treatment",
+  "Vision Correction",
+  "Low Vision Care",
+  "Emergency Eye Care"
+]
+
+  },
+
+  // Government Rajaji Hospital
   {
     hospitalName: "Government Rajaji Hospital",
     address: "Panagal Road, Madurai, Tamil Nadu",
-    location: { type: "Point", coordinates: [78.1304, 9.9269] },
-    insuranceProvider: "Tamil Nadu Government Health Scheme",
-    policyName: "Chief Minister's Comprehensive Health Insurance Scheme (CMCHIS)",
+    location: { type: "Point", coordinates: [78.1190, 9.9312] },
+    acceptedInsurance: [
+      "Star Health",
+      "Ayushman Bharat (PMJAY)",
+      "CMCHIS (State Govt Scheme)"
+    ],
+    policyName: "Government Schemes",
     coverageType: "Family Floater",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 500000,
     claimProcessTime: 7,
     treatmentsCovered: [
-      "General Surgery",
-      "Orthopedic Surgery",
-      "Cardiology",
-      "Neurology",
-      "Pediatrics",
-      "Obstetrics and Gynecology",
-      "Emergency Medicine",
-      "Dialysis",
-      "Cancer Treatment",
-      "Plastic Surgery",
-      "Burns Care",
-      "Trauma Care",
-      "Mental Health Services",
-      "Transgender Health Services",
-      "Kidney Treatment",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Brain Surgery",
-      "Dental",
-      "Eye",
-      "ENT",
-      "Emergency Surgery"
-    ],
-    specialSchemes: [
-      "Chief Minister's Comprehensive Health Insurance Scheme (CMCHIS)",
-      "Innuyir Kappom – Nammai Kakkum 48",
-      "Janani Shishu Suraksha Karyakram (JSSK)",
-      "Rashtriya Bal Swasthya Karyakram (RBSK)",
-      "Anemia Mukt Bharat"
-    ]
+  "Emergency Care",
+  "Trauma Care",
+  "Cornea Treatment",
+  "General Medicine",
+  "General Surgery",
+  "Cardiology",
+  "Neurology",
+  "Neurosurgery",
+  "Orthopedics",
+  "Pediatrics",
+  "Neonatal Care",
+  "Obstetrics",
+  "Gynecology",
+  "Normal Delivery",
+  "Cesarean Section",
+  "ENT Treatment",
+  "Dental Care",
+  "Dermatology",
+  "Psychiatry",
+  "Pulmonology",
+  "TB Treatment",
+  "Dialysis",
+  "ICU Care",
+  "Critical Care",
+  "Infectious Disease Treatment",
+  "Cardiology",
+  
+"Heart Treatment"
+
+]
+
   },
 
-  // ------------------ Apollo Hospital Madurai ------------------
+  // Apollo Hospital
   {
     hospitalName: "Apollo Hospital Madurai",
     address: "NH44, Mattuthavani, Madurai, Tamil Nadu",
     location: { type: "Point", coordinates: [78.1235, 9.9231] },
-    insuranceProvider: "Star Health",
-    policyName: "Family Health Optima",
-    coverageType: "Family Floater",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 500000,
-    claimProcessTime: 7,
-    treatmentsCovered: [
-      "Appendectomy",
-      "Cardiology Surgery",
-      "Knee Replacement",
-      "Chemotherapy",
-      "Maternity Care",
-      "General Surgery",
-      "Dialysis",
-      "X-ray",
-      "Orthopedic Surgery",
-      "Bariatric Surgery",
-      "Plastic Surgery",
-      "Kidney Treatment",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Brain Surgery",
-      "Neurology",
-      "Dental",
-      "Eye",
-      "ENT",
-      "Emergency Surgery"
-    ],
     acceptedInsurance: [
+      "Star Health",
       "HDFC ERGO",
       "ICICI Lombard",
-      "Star Health",
+      "Cornea Treatment",
       "SBI General",
+      "Bajaj Allianz",
       "IFFCO Tokio",
-      "Kotak Mahindra",
-      "TATA AIG",
-      "New India Assurance",
-      "United India Insurance",
-      "ManipalCigna",
-      "Max Bupa (Niva Bupa)",
-      "Bajaj Allianz",
-      "Medi Assist",
-      "MD India",
-      "FHPL",
-      "Paramount"
-    ]
-  },
-  {
-    hospitalName: "Apollo Hospital Madurai",
-    address: "NH44, Mattuthavani, Madurai, Tamil Nadu",
-    location: { type: "Point", coordinates: [78.1235, 9.9231] },
-    insuranceProvider: "ICICI Lombard",
-    policyName: "Health Protect",
-    coverageType: "Individual",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 300000,
-    claimProcessTime: 5,
-    treatmentsCovered: [
-      "Appendectomy",
-      "Emergency Surgery",
-      "Dialysis",
-      "X-ray",
-      "Minor Surgery",
-      "Cardiology",
-      "Orthopedics",
-      "Neurology",
-      "Dental",
-      "Eye",
-      "ENT",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Brain Surgery",
-      "Kidney Treatment"
-    ]
-  },
-
-  // ------------------ Velammal Hospital Madurai ------------------
-  {
-    hospitalName: "Velammal Hospital",
-    address: "Alagar Koil Rd, Madurai, Tamil Nadu",
-    location: { type: "Point", coordinates: [78.1102, 9.9400] },
-    insuranceProvider: "Star Health",
-    policyName: "Family Health Optima",
-    coverageType: "Family Floater",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 400000,
-    claimProcessTime: 6,
-    treatmentsCovered: [
-      "Appendectomy",
-      "Physiotherapy",
-      "Maternity Care",
-      "Dental Surgery",
-      "General Surgery",
-      "Emergency Surgery",
-      "Cardiology",
-      "Neurology",
-      "Orthopedics",
-      "Pediatric Care",
-      "Kidney Treatment",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Eye",
-      "ENT",
-      "Dialysis",
-      "X-ray",
-      "Brain Surgery"
+      "United India Insurance"
     ],
-    acceptedInsurance: [
-      "Acko Health Insurance",
-      "Aditya Birla Health Insurance",
-      "Bajaj Allianz",
-      "Bharti AXA Health Insurance",
-      "Care Health Insurance",
-      "Future Generali India Insurance",
-      "IFFCO TOKIO",
-      "ICICI Lombard",
-      "Medi Assist TPA Pvt. Ltd.",
-      "Vidal Health Insurance TPA Pvt. Ltd.",
-      "Niva Bupa",
-      "Medsave Healthcare"
-    ]
-  },
-  {
-    hospitalName: "Velammal Hospital",
-    address: "Alagar Koil Rd, Madurai, Tamil Nadu",
-    location: { type: "Point", coordinates: [78.1102, 9.9400] },
-    insuranceProvider: "SBI General",
-    policyName: "Arogya Supreme",
-    coverageType: "Individual",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 250000,
-    claimProcessTime: 5,
-    treatmentsCovered: [
-      "Appendectomy",
-      "Emergency Surgery",
-      "X-ray",
-      "Minor Surgery",
-      "Dialysis",
-      "Cardiology",
-      "Orthopedics",
-      "Neurology",
-      "Dental",
-      "Eye",
-      "ENT",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Brain Surgery",
-      "Kidney Treatment"
-    ]
-  },
-
-  // ------------------ Rajamani Hospital ------------------
-  {
-    hospitalName: "Rajamani Hospital",
-    address: "North Veli St, Madurai, Tamil Nadu",
-    location: { type: "Point", coordinates: [78.1190, 9.9312] },
-    insuranceProvider: "Star Health",
-    policyName: "Family Health Optima",
+    policyName: "Multi-Insurance",
     coverageType: "Family Floater",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 450000,
     claimProcessTime: 7,
     treatmentsCovered: [
-      "Appendectomy",
-      "Emergency Surgery",
-      "General Surgery",
-      "X-ray",
-      "Dialysis",
-      "Maternity Care",
-      "Cardiology",
-      "Orthopedics",
-      "Neurology",
-      "Dental",
-      "Eye",
-      "ENT",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Brain Surgery",
-      "Kidney Treatment"
-    ],
-    acceptedInsurance: [
-      "MD India",
-      "ICICI Lombard",
-      "Star Health",
-      "Aditya Birla",
-      "SBI General",
-      "IFFCO Tokio",
-      "HDFC ERGO",
-      "Niva Bupa",
-      "Digit Insurance",
-      "Personal & Caring Insurance"
-    ]
+  "Emergency Services",
+  "Critical Care",
+  "ICU Care",
+  "Cardiology",
+  "Cornea Treatment",
+  "Heart Surgery",
+  "Angioplasty",
+  "Neurology",
+  "Neurosurgery",
+  "Orthopedics",
+  "Joint Replacement",
+  "Spine Surgery",
+  "Oncology",
+  "Chemotherapy",
+  "Radiation Therapy",
+  "Gastroenterology",
+  "Liver Treatment",
+  "Urology",
+  "Kidney Stone Treatment",
+  "Dialysis",
+  "Maternity Care",
+  "Normal Delivery",
+  "Cesarean Section",
+  "Neonatal ICU",
+  "Pulmonology",
+  "Diabetes Care",
+  "General Surgery",
+  "Laparoscopic Surgery",
+  
+  "Health Checkups"
+]
+
   },
+
+  // Velammal Hospital
   {
-    hospitalName: "Rajamani Hospital",
-    address: "North Veli St, Madurai, Tamil Nadu",
-    location: { type: "Point", coordinates: [78.1190, 9.9312] },
-    insuranceProvider: "HDFC ERGO",
-    policyName: "My Health Suraksha",
-    coverageType: "Individual",
-    cashlessAvailable: "Yes",
-    maxClaimAmount: 300000,
+    hospitalName: "Velammal Hospital",
+    address: "Alagar Koil Road, Madurai, Tamil Nadu",
+    location: { type: "Point", coordinates: [78.1102, 9.9400] },
+    acceptedInsurance: [
+      "Star Health",
+      "ICICI Lombard",
+      "HDFC ERGO",
+      "SBI General",
+      "Bajaj Allianz"
+    ],
+    policyName: "Multi-Insurance",
+    coverageType: "Family Floater",
     claimProcessTime: 6,
     treatmentsCovered: [
-      "Appendectomy",
-      "Maternity Care",
-      "Dental Surgery",
-      "Minor Surgery",
-      "Cardiology",
-      "Orthopedics",
-      "Neurology",
-      "Dental",
-      "Eye",
-      "ENT",
-      "Pregnancy Care",
-      "Skin Treatment",
-      "Brain Surgery",
-      "Kidney Treatment",
-      "Emergency Surgery"
-    ]
+  "Emergency Services",
+  "Trauma Care",
+  "General Medicine",
+  "General Surgery",
+  "Cornea Treatment",
+  "Orthopedics",
+  "Fracture Treatment",
+  "Joint Replacement",
+  "Cardiology",
+  "Neurology",
+  "Neurosurgery",
+  "Pediatrics",
+  "Neonatal Care",
+  "Gynecology",
+  "Obstetrics",
+  "Normal Delivery",
+  "Cesarean Section",
+  "ENT Treatment",
+  "Dermatology",
+  "Pulmonology",
+  "ICU Care",
+  "Critical Care",
+  "Diagnostics",
+  "Cardiology",
+"Heart Treatment",
+
+  "Radiology",
+  "Laboratory Services"
+]
+
+  },
+
+  // Rajamani Hospital
+  {
+    hospitalName: "Rajamani Hospital",
+    address: "North Veli Street, Madurai, Tamil Nadu",
+    location: { type: "Point", coordinates: [78.1195, 9.9305] },
+    acceptedInsurance: [
+      "Star Health",
+      "ICICI Lombard",
+      "HDFC ERGO",
+      "SBI General",
+      "Bajaj Allianz"
+    ],
+    policyName: "Multi-Insurance",
+    coverageType: "Individual",
+    claimProcessTime: 7,
+    treatmentsCovered: [
+  "Emergency Care",
+  "General Medicine",
+  "General Surgery",
+  "Orthopedics",
+  "Fracture Treatment",
+  "Cardiology",
+  "Diabetes Treatment",
+  "Hypertension Treatment",
+  "Pediatrics",
+  "ENT Treatment",
+  "Gynecology",
+  "Normal Delivery",
+  "Minor Surgeries",
+  "Dialysis",
+  "ICU Care",
+  "Diagnostics",
+  "Health Checkups",
+  "Cardiology",
+"Heart Treatment"
+
+]
+
   }
 ];
 
@@ -288,12 +240,18 @@ async function seed() {
 
     await collection.deleteMany({});
     const result = await collection.insertMany(hospitalData);
+
+    // ✅ CREATE GEO INDEX
+    await collection.createIndex({ location: "2dsphere" });
+
     console.log(`✅ Inserted ${result.insertedCount} hospital records successfully`);
+    console.log("✅ 2dsphere index created successfully");
   } catch (err) {
     console.error("❌ Error seeding hospitals:", err);
   } finally {
     await client.close();
   }
 }
+
 
 seed();
