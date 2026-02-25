@@ -473,3 +473,200 @@ button:hover {
   max-width: 200px;     /* prevents too large buttons */
   text-align: center;
 }
+.hospital-scroll {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  scroll-behavior: smooth;
+}
+
+.hospital-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.hospital-scroll::-webkit-scrollbar-thumb {
+  background: #1f3c88;
+  border-radius: 10px;
+}
+
+.hospital-card {
+  min-width: 280px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.hospital-card:hover {
+  transform: translateY(-8px);
+}
+
+.hospital-card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.hospital-card h4 {
+  font-size: 20px;
+  color: #1f3c88;
+  margin-bottom: 10px;
+}
+
+.hospital-card p {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.hospital-card span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+/* ===== CONTACT SECTION ===== */
+.contact-section {
+  padding: 70px 20px;
+  background: linear-gradient(to right, #eef7f6, #f4f8ff);
+}
+
+.section-title {
+  text-align: center;
+  font-size: 36px;
+  color: #1e3a5f;
+  margin-bottom: 10px;
+}
+
+.section-subtitle {
+  text-align: center;
+  color: #555;
+  margin-bottom: 40px;
+  font-size: 16px;
+}
+
+.contact-container {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* LEFT BOX */
+.contact-info {
+  flex: 1;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.contact-info h3 {
+  margin-bottom: 20px;
+  color: #0077b6;
+}
+
+.contact-info p {
+  margin-bottom: 15px;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* RIGHT BOX */
+.contact-form {
+  flex: 1;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.contact-form h3 {
+  margin-bottom: 20px;
+  color: #0077b6;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: #0077b6;
+}
+
+.contact-form button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(to right, #0077b6, #00b4d8);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.contact-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 119, 182, 0.3);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .contact-container {
+    flex-direction: column;
+  }
+}
+
+.policy-scroll {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  scroll-behavior: smooth;
+}
+
+.policy-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.policy-scroll::-webkit-scrollbar-thumb {
+  background: #1f3c88;
+  border-radius: 10px;
+}
+
+.policy-card {
+  min-width: 280px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.policy-card:hover {
+  transform: translateY(-6px);
+}
+
+.policy-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: contain; /* keeps logos from stretching */
+  border-radius: 12px;
+}
