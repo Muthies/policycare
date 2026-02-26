@@ -220,12 +220,12 @@ const Home = () => {
   </p>
 
   <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-      gap: "40px"
-    }}
-  >
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)", // always 4 columns
+    gap: "40px"
+  }}
+>
     {/* Step 1 */}
 <div style={stepCardStyle}>
   <div style={stepNumberStyle}>1</div>
