@@ -180,6 +180,9 @@
     .loading.active {
       display: block;
     }
+    .message-content ul {
+  margin-left: 18px;
+}
 
     .loading-dots::after {
       content: '';
@@ -277,7 +280,14 @@
 
   const messageContent = document.createElement('div');
   messageContent.className = 'message-content';
-  messageContent.textContent = text;
+
+  // Convert **bold** to <strong>
+  let formattedText = text
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")   // for italic if needed
+    .replace(/\n/g, "<br>");               // keep line breaks
+
+  messageContent.innerHTML = formattedText;
 
   messageDiv.appendChild(messageContent);
   chatContainer.appendChild(messageDiv);

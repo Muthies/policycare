@@ -83,6 +83,7 @@ const hospitalData = [
   "Critical Care",
   "Infectious Disease Treatment",
   "Cardiology",
+  "Emergency Eye Care",
   
 "Heart Treatment"
 
@@ -115,6 +116,7 @@ const hospitalData = [
   "Cardiology",
   "Cornea Treatment",
   "Heart Surgery",
+  "Emergency Eye Care",
   "Angioplasty",
   "Neurology",
   "Neurosurgery",
@@ -163,6 +165,7 @@ const hospitalData = [
   "Trauma Care",
   "General Medicine",
   "General Surgery",
+  "Emergency Eye Care",
   "Cornea Treatment",
   "Orthopedics",
   "Fracture Treatment",

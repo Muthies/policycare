@@ -12,27 +12,17 @@ const PolicyEntry = () => {
   const [error, setError] = useState("");
 
   const insuranceProviders = [
-    "Star Health",
-    "ICICI Lombard",
-    "SBI General",
-    "HDFC ERGO",
-    "Aditya Birla Health",
-    "IFFCO Tokio",
-    "Niva Bupa",
-    "Digit Insurance",
-    "Bajaj Allianz",
-    "Reliance Health",
-    "Future Generali",
-    "New India Assurance",
-    "Oriental Insurance",
-    "United India Insurance",
-    "Tata AIG",
-    "Care Health",
-    "Chola MS",
-    "Liberty General",
-    "Manipal Cigna",
-    "Max Bupa"
-  ];
+  "Star Health",
+  "ICICI Lombard",
+  "HDFC ERGO",
+  "SBI General",
+  "Bajaj Allianz",
+  "IFFCO Tokio",
+  "United India Insurance",
+  "Apollo Munich",
+  "Universal Sompo",
+  "Ayushman Bharat (PMJAY)"
+];
 
   const handleSubmit = (e) => {
     e.preventDefault();

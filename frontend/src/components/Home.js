@@ -44,12 +44,7 @@ const Home = () => {
     <div>
 
       {/* ===== TOP COLOR STRIP (NO TEXT) ===== */}
-      <div
-        style={{
-          background: "linear-gradient(to right, #7ae7d8, #a9c7e8)",
-          height: "140px"
-        }}
-      ></div>
+      
 
       {/* ===== NAVIGATION BAR ===== */}
       <nav
@@ -57,27 +52,51 @@ const Home = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "25px 50px",
-          backgroundColor: "#ffffff",
-          borderBottom: "1px solid #ddd",
-          height: "90px"
+          padding: "25px 20px",
+          backgroundColor: "linear-gradient(135deg, #74ebd5, #acb6e5)",
+          borderBottom: "1px solid #ade9f1",
+          height: "20px"
         }}
       >
         {/* Navigation Links */}
         <div
           style={{
             display: "flex",
-            gap: "45px",
-            fontSize: "18px",
-            fontWeight: "500",
+            gap: "80px",
+            fontSize: "19px",
+            fontWeight: "600",
             margin: "0 auto"
           }}
         >
-          <span style={{ cursor: "pointer" }} onClick={() => navigate("/")}>Home</span>
-          <span style={{ cursor: "pointer" }}>How it works</span>
-          <span style={{ cursor: "pointer" }}>Hospitals</span>
-          <span style={{ cursor: "pointer" }}>Policies</span>
-          <span style={{ cursor: "pointer" }}>Contact</span>
+          <span 
+  style={{ 
+    cursor: "pointer", 
+    color: "black", 
+    fontSize: "21px",   // increased size
+    letterSpacing: "0.5px"
+  }} 
+  onClick={() => navigate("/")}
+>
+  
+</span>
+<span style={{ cursor: "pointer", color: "black", fontSize: "21px", letterSpacing: "0.5px" }}>
+  Home
+</span>
+<span style={{ cursor: "pointer", color: "black", fontSize: "21px", letterSpacing: "0.5px" }}>
+  How it works
+</span>
+
+<span style={{ cursor: "pointer", color: "black", fontSize: "21px", letterSpacing: "0.5px" }}>
+  Hospitals
+</span>
+
+<span style={{ cursor: "pointer", color: "black", fontSize: "21px", letterSpacing: "0.5px" }}>
+  Policies
+</span>
+
+<span style={{ cursor: "pointer", color: "black", fontSize: "21px", letterSpacing: "0.5px" }}>
+  Contact
+</span>
         </div>
 
         {/* Login Icon */}
@@ -109,7 +128,7 @@ const Home = () => {
   {/* Left Image */}
   <div style={{ flex: 0.9 }}>
     <img
-      src="https://www.shutterstock.com/image-photo/indian-poor-man-transfer-money-260nw-2520829337.jpg"
+      src="https://www.pbgh.org/wp-content/uploads/2022/03/Health-Care-Policy-720x405.png"
       alt="policycare-healthcare"
       style={{
         width: "90%",
@@ -208,65 +227,85 @@ const Home = () => {
     }}
   >
     {/* Step 1 */}
-    <div style={stepCardStyle}>
-      <div style={stepNumberStyle}>1</div>
-      <h4 style={stepTitleStyle}>Enter Policy Details</h4>
-      <p style={stepDescStyle}>
-        The patient enters their insurance policy ID on the platform to begin
-        verification.
-      </p>
-    </div>
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>1</div>
+  <h4 style={stepTitleStyle}>User Registration / Login</h4>
+  <p style={stepDescStyle}>
+    New users sign up to create an account, while existing users securely log in 
+    to access their personalized insurance dashboard.
+  </p>
+</div>
 
-    {/* Step 2 */}
-    <div style={stepCardStyle}>
-      <div style={stepNumberStyle}>2</div>
-      <h4 style={stepTitleStyle}>Policy & Hospital Mapping</h4>
-      <p style={stepDescStyle}>
-        PolicyCare matches the policy with empaneled hospitals and covered
-        medical services in real time.
-      </p>
-    </div>
+{/* Step 2 */}
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>2</div>
+  <h4 style={stepTitleStyle}>Enter Policy Details</h4>
+  <p style={stepDescStyle}>
+    The user enters their insurance policy ID to validate coverage and retrieve 
+    associated benefits in real time.
+  </p>
+</div>
 
-    {/* Step 3 */}
-    <div style={stepCardStyle}>
-      <div style={stepNumberStyle}>3</div>
-      <h4 style={stepTitleStyle}>AI-Based Filtering</h4>
-      <p style={stepDescStyle}>
-        AI filters hospitals based on policy coverage, requested service,
-        distance, and hospital ratings.
-      </p>
-    </div>
+{/* Step 3 */}
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>3</div>
+  <h4 style={stepTitleStyle}>Search Treatment / Service</h4>
+  <p style={stepDescStyle}>
+    Users search for required treatments, surgeries, or medical services 
+    covered under their insurance policy.
+  </p>
+</div>
 
-    {/* Step 4 */}
-    <div style={stepCardStyle}>
-      <div style={stepNumberStyle}>4</div>
-      <h4 style={stepTitleStyle}>Hospital Ranking</h4>
-      <p style={stepDescStyle}>
-        Hospitals are ranked using a weighted scoring model to recommend the
-        most suitable options.
-      </p>
-    </div>
+{/* Step 4 */}
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>4</div>
+  <h4 style={stepTitleStyle}>Policy & Hospital Mapping</h4>
+  <p style={stepDescStyle}>
+    PolicyCare maps the selected treatment with empaneled hospitals 
+    eligible under the user’s policy network.
+  </p>
+</div>
 
-    {/* Step 5 */}
-    <div style={stepCardStyle}>
-      <div style={stepNumberStyle}>5</div>
-      <h4 style={stepTitleStyle}>QR Code Generation</h4>
-      <p style={stepDescStyle}>
-        A secure QR code is generated containing encrypted policy, hospital,
-        and service details.
-      </p>
-    </div>
+{/* Step 5 */}
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>5</div>
+  <h4 style={stepTitleStyle}>Location-Based Sorting</h4>
+  <p style={stepDescStyle}>
+    Hospitals are sorted automatically based on proximity to the user 
+    using real-time geolocation and distance calculation.
+  </p>
+</div>
 
-    {/* Step 6 */}
-    <div style={stepCardStyle}>
-      <div style={stepNumberStyle}>6</div>
-      <h4 style={stepTitleStyle}>Hospital Verification</h4>
-      <p style={stepDescStyle}>
-        Hospitals scan the QR code to instantly verify eligibility and provide
-        treatment without delays.
-      </p>
-    </div>
-  </div>
+{/* Step 6 */}
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>6</div>
+  <h4 style={stepTitleStyle}>Review & Rating Filter</h4>
+  <p style={stepDescStyle}>
+    Users can filter and sort hospitals based on ratings, reviews, 
+    and service quality to make informed decisions.
+  </p>
+</div>
+
+{/* Step 7 */}
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>7</div>
+  <h4 style={stepTitleStyle}>AI-Based Hospital Ranking</h4>
+  <p style={stepDescStyle}>
+    An AI-driven weighted scoring model ranks hospitals based on 
+    coverage, distance, availability, and patient ratings.
+  </p>
+</div>
+
+{/* Step 8 */}
+<div style={stepCardStyle}>
+  <div style={stepNumberStyle}>8</div>
+  <h4 style={stepTitleStyle}>Secure QR Verification</h4>
+  <p style={stepDescStyle}>
+    A secure encrypted QR code is generated and scanned by hospitals 
+    to instantly verify eligibility and approve treatment without delay.
+  </p>
+</div>
+</div>
 </section>
 {/* ===== HOSPITALS SECTION ===== */}
 <section
