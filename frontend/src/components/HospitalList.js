@@ -40,7 +40,7 @@ const HospitalList = () => {
     setLoading(true);
 
     axios
-      .get(`http://localhost:5000/api/hospitals/${insurance}`)
+      .get(`https://policycare-backend.onrender.com/api/hospitals/${insurance}`)
       .then((res) => {
         setHospitals(res.data);
         setFilteredHospitals(res.data);
@@ -85,7 +85,7 @@ const HospitalList = () => {
             setLoading(true);
 
             const res = await axios.get(
-              `http://localhost:5000/api/hospitals/nearby/search`,
+              `https://policycare-backend.onrender.com/api/hospitals/nearby/search`,
               {
                 params: {
                   lat: position.coords.latitude,
@@ -137,7 +137,7 @@ const HospitalList = () => {
             setLoading(true);
 
             const res = await axios.get(
-              `http://localhost:5000/api/hospitals/nearby/search`,
+              `https://policycare-backend.onrender.com/api/hospitals/nearby/search`,
               {
                 params: {
                   lat: position.coords.latitude,
@@ -205,7 +205,7 @@ console.log("Longitude:", position.coords.longitude);
     if (!userId) return alert("Login required");
 
     try {
-      await axios.post("http://localhost:5000/api/reviews", {
+      await axios.post("https://policycare-backend.onrender.com/api/reviews", {
         hospitalId: selectedHospital._id,
         userId,
         rating,
@@ -218,7 +218,7 @@ console.log("Longitude:", position.coords.longitude);
       setComment("");
 
       const res = await axios.get(
-        `http://localhost:5000/api/hospitals/${insurance}`
+        `https://policycare-backend.onrender.com/api/hospitals/${insurance}`
       );
       setHospitals(res.data);
     } catch {

@@ -18,15 +18,15 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (activeTab === "users") {
-      axios.get("http://localhost:5000/api/admin/users")
+      axios.get("https://policycare-backend.onrender.com/api/admin/users")
         .then(res => setUsers(res.data))
         .catch(err => console.error("Error fetching users:", err));
     } else if (activeTab === "hospitals") {
-      axios.get("http://localhost:5000/api/admin/hospitals")
+      axios.get("https://policycare-backend.onrender.com/api/admin/hospitals")
         .then(res => setHospitals(res.data))
         .catch(err => console.error("Error fetching hospitals:", err));
     } else if (activeTab === "reviews") {
-      axios.get("http://localhost:5000/api/admin/reviews")
+      axios.get("https://policycare-backend.onrender.com/api/admin/reviews")
         .then(res => setReviews(res.data))
         .catch(err => console.error("Error fetching reviews:", err));
     }
