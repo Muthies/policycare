@@ -13,7 +13,7 @@ const StarRating = ({ value }) => {
     </span>
   );
 };
-const userId = localStorage.getItem("userId");
+
 const HospitalList = () => {
   const [hospitals, setHospitals] = useState([]);
   const [filteredHospitals, setFilteredHospitals] = useState([]);
