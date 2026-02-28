@@ -121,7 +121,6 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 });
-// Hospital Login
 app.post("/api/hospital/login", async (req, res) => {
   try {
     const { hospitalId, password } = req.body;
@@ -135,9 +134,8 @@ app.post("/api/hospital/login", async (req, res) => {
       return res.status(400).json({ success: false, msg: "Invalid credentials" });
     }
 
-    // If you stored hashed passwords, use bcrypt
-    const isMatch = await bcrypt.compare(password, hospital.password);
-    if (!isMatch) {
+    // Plain text comparison
+    if (hospital.password !== password) {
       return res.status(400).json({ success: false, msg: "Invalid credentials" });
     }
 
