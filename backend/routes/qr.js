@@ -19,22 +19,34 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "Invalid User ID format" });
     }
 
+    // ✅ Get today's date
+    const today = new Date().toISOString().split("T")[0];
+
     const qr = new QR({
       userId,
       hospitalId,
       status: "pending",
       createdAt: new Date(),
+      requestDate: today, // 🔥 important
     });
 
     await qr.save();
 
     res.status(201).json({ qrId: qr._id });
+
   } catch (err) {
+
+    // ✅ If same hospital same day
+    if (err.code === 11000) {
+      return res.status(400).json({
+        message: "You already requested this hospital today.",
+      });
+    }
+
     console.error("QR Create Error:", err);
     res.status(500).json({ message: "QR creation failed" });
   }
 });
-
 /* ==============================
    SEND REQUEST TO HOSPITAL
 ============================== */

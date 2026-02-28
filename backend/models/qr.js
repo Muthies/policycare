@@ -7,7 +7,8 @@ const qrSchema = new mongoose.Schema({
     required: true,
   },
   hospitalId: {
-    type: String,  // ✅ changed to string to match frontend "aravind"
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hospital",
     required: true,
   },
   status: {
@@ -20,6 +21,18 @@ const qrSchema = new mongoose.Schema({
     default: Date.now,
   },
   approvedAt: Date,
+
+  // ✅ NEW FIELD
+  requestDate: {
+    type: String, // format: YYYY-MM-DD
+    required: true,
+  },
 });
+
+// ✅ Prevent duplicate same hospital same day
+qrSchema.index(
+  { userId: 1, hospitalId: 1, requestDate: 1 },
+  { unique: true }
+);
 
 module.exports = mongoose.model("QR", qrSchema);
