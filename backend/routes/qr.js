@@ -15,26 +15,30 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "UserId and HospitalId required" });
     }
 
+    // ✅ Validate BOTH IDs
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid User ID format" });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(hospitalId)) {
+      return res.status(400).json({ message: "Invalid Hospital ID format" });
+    }
+
     const qr = new QR({
-      userId,
-      hospitalId,
+      userId: new mongoose.Types.ObjectId(userId),
+      hospitalId: new mongoose.Types.ObjectId(hospitalId),
       status: "pending",
-      createdAt: new Date(),
     });
 
     await qr.save();
 
     res.status(201).json({ qrId: qr._id });
+
   } catch (err) {
-    console.error("QR Create Error:", err);
-    res.status(500).json({ message: "QR creation failed" });
+    console.error("QR Create Error FULL:", err);
+    res.status(500).json({ message: err.message }); // 🔥 show real error
   }
 });
-
 /* ==============================
    SEND REQUEST TO HOSPITAL
 ============================== */
