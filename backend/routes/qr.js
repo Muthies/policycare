@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const QR = require("../models/qr");   // qr model
+const QR = require("../models/qr");   // QR model
 const User = require("../models/User");
 
 /* ==============================
@@ -15,14 +15,13 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "UserId and HospitalId required" });
     }
 
-    // ✅ Only validate userId (ObjectId)
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid User ID format" });
     }
 
     const qr = new QR({
       userId,
-      hospitalId,  // string is fine
+      hospitalId,
       status: "pending",
       createdAt: new Date(),
     });
@@ -67,7 +66,6 @@ router.get("/hospital/:hospitalId", async (req, res) => {
   try {
     const { hospitalId } = req.params;
 
-    // ✅ No ObjectId check: hospitalId is a string
     const requests = await QR.find({ hospitalId, status: "requested" })
       .populate("userId", "name email aadhaar");
 
@@ -75,6 +73,30 @@ router.get("/hospital/:hospitalId", async (req, res) => {
   } catch (err) {
     console.error("Fetch Hospital Requests Error:", err);
     res.status(500).json({ message: "Failed to fetch requests" });
+  }
+});
+
+/* ==============================
+   GET SINGLE QR BY ID
+   (needed for HospitalApprove page)
+============================== */
+router.get("/:qrId", async (req, res) => {
+  try {
+    const { qrId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(qrId)) {
+      return res.status(400).json({ message: "Invalid QR ID" });
+    }
+
+    const qr = await QR.findById(qrId)
+      .populate("userId", "name email aadhaar treatments"); // populate full patient info
+
+    if (!qr) return res.status(404).json({ message: "QR not found" });
+
+    res.json(qr);
+  } catch (err) {
+    console.error("Fetch QR by ID Error:", err);
+    res.status(500).json({ message: "Failed to fetch QR" });
   }
 });
 

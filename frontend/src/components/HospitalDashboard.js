@@ -28,10 +28,15 @@ const HospitalDashboard = () => {
       {requests.length === 0 ? (
         <p>No requests yet</p>
       ) : (
-        <table border="1" cellPadding="10" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table
+          border="1"
+          cellPadding="10"
+          style={{ width: "100%", borderCollapse: "collapse" }}
+        >
           <thead>
             <tr>
               <th>Patient Name</th>
+              <th>Email</th>
               <th>Aadhaar</th>
               <th>QR ID</th>
               <th>Status</th>
@@ -40,13 +45,16 @@ const HospitalDashboard = () => {
           </thead>
           <tbody>
             {requests.map((req) => (
-              <tr key={req.qrId}>
-                <td>{req.name}</td>
-                <td>{req.aadhaar}</td>
-                <td>{req.qrId}</td>
+              <tr key={req._id}>
+                <td>{req.userId?.name || "N/A"}</td>
+                <td>{req.userId?.email || "N/A"}</td>
+                <td>{req.userId?.aadhaar || "N/A"}</td>
+                <td>{req._id}</td>
                 <td>{req.status}</td>
                 <td>
-                  <button onClick={() => navigate(`/hospital/patient/${req.qrId}`)}>
+                  <button
+                    onClick={() => navigate(`/hospital/patient/${req._id}`)}
+                  >
                     View Details
                   </button>
                 </td>

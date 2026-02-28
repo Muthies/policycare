@@ -8,21 +8,23 @@ const HospitalApprove = () => {
   const { qrId } = useParams();
   const navigate = useNavigate();
   const [patient, setPatient] = useState(null);
+  const [qrStatus, setQrStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionMsg, setActionMsg] = useState("");
 
   useEffect(() => {
-    // Fetch QR / patient details
     const fetchPatient = async () => {
       try {
         const res = await axios.get(
           `https://policycare-backend.onrender.com/api/qr/${qrId}`
         );
 
-        setPatient(res.data);
+        // qr contains user info in userId field
+        setPatient(res.data.userId);
+        setQrStatus(res.data.status);
         setLoading(false);
       } catch (error) {
-        console.error(error);
+        console.error("Fetch patient error:", error);
         setActionMsg("Failed to load patient details");
         setLoading(false);
       }
@@ -33,49 +35,49 @@ const HospitalApprove = () => {
 
   const handleApprove = async () => {
     try {
-      const res = await axios.put(
+      await axios.put(
         `https://policycare-backend.onrender.com/api/qr/approve/${qrId}`
       );
+      setQrStatus("completed"); // update local status
       setActionMsg("Treatment Approved ✅");
-      // Optionally redirect to hospital dashboard
-      // navigate("/hospital/dashboard");
     } catch (error) {
-      console.error(error);
+      console.error("Approve error:", error);
       setActionMsg("Approval failed ❌");
     }
   };
 
-  const handleWithdraw = async () => {
-    try {
-      const res = await axios.put(
-        `https://policycare-backend.onrender.com/api/qr/withdraw/${qrId}`
-      );
-      setActionMsg("Request Withdrawn ❌");
-      // Optionally redirect to dashboard
-      // navigate("/hospital/dashboard");
-    } catch (error) {
-      console.error(error);
-      setActionMsg("Failed to withdraw ❌");
-    }
-  };
+  // Optional: Withdraw button (if you implement backend route)
+  // const handleWithdraw = async () => {
+  //   try {
+  //     await axios.put(
+  //       `https://policycare-backend.onrender.com/api/qr/withdraw/${qrId}`
+  //     );
+  //     setQrStatus("withdrawn");
+  //     setActionMsg("Request Withdrawn ❌");
+  //   } catch (error) {
+  //     console.error(error);
+  //     setActionMsg("Failed to withdraw ❌");
+  //   }
+  // };
 
   if (loading) return <h2 style={{ textAlign: "center" }}>Loading patient...</h2>;
-
   if (!patient) return <h2 style={{ textAlign: "center" }}>No patient found</h2>;
 
   return (
     <div style={{ maxWidth: "600px", margin: "50px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "10px" }}>
       <h2>Patient Details</h2>
       <p><strong>Name:</strong> {patient.name}</p>
+      <p><strong>Email:</strong> {patient.email}</p>
       <p><strong>Aadhaar:</strong> {patient.aadhaar}</p>
-      <p><strong>Insurance:</strong> {patient.insurance}</p>
-      <p><strong>Card No:</strong> {patient.cardNo}</p>
-      <p><strong>Treatment:</strong> {patient.treatment || "Not specified"}</p>
-      <p><strong>Status:</strong> {patient.status}</p>
+      <p><strong>Treatments done:</strong> {patient.treatments?.length || 0}</p>
+      <p><strong>Status:</strong> {qrStatus}</p>
 
       <div style={{ marginTop: "20px" }}>
-        <button onClick={handleApprove} style={{ marginRight: "10px" }}>Approve / Complete</button>
-        <button onClick={handleWithdraw} style={{ backgroundColor: "#f44336", color: "#fff" }}>Withdraw / Not Came</button>
+        {qrStatus !== "completed" && (
+          <button onClick={handleApprove} style={{ marginRight: "10px" }}>Approve / Complete</button>
+        )}
+        {/* Uncomment if withdraw route is implemented */}
+        {/* <button onClick={handleWithdraw} style={{ backgroundColor: "#f44336", color: "#fff" }}>Withdraw / Not Came</button> */}
       </div>
 
       {actionMsg && <p style={{ marginTop: "20px", fontWeight: "bold" }}>{actionMsg}</p>}
