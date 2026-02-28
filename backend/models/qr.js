@@ -27,9 +27,9 @@ const qrSchema = new mongoose.Schema({
   approvedAt: Date,
 
   requestDate: {
-    type: String,
-    required: true,
-  },
+  type: String,
+  default: () => new Date().toISOString().split("T")[0],
+},
 });
 
 // prevent same hospital same day
