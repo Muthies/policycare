@@ -1,3 +1,5 @@
+// frontend/src/App.js
+
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -9,6 +11,8 @@ import HospitalList from "./components/HospitalList";
 import QRPage from "./components/QRPage";
 import TreatmentPage from "./components/TreatmentPage";
 import AdminDashboard from "./components/AdminDashboard";
+import HospitalLogin from "./components/HospitalLogin";       // ✅ new
+import HospitalDashboard from "./components/HospitalDashboard"; // ✅ new
 import HospitalApprove from "./components/HospitalApprove";
 
 function App() {
@@ -24,6 +28,7 @@ function App() {
 
       {/* Routes */}
       <Routes>
+        {/* Public / user pages */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -32,7 +37,11 @@ function App() {
         <Route path="/qr" element={<QRPage />} />
         <Route path="/treatment" element={<TreatmentPage />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
-        <Route path="/hospital/approve/:qrId" element={<HospitalApprove />} />
+
+        {/* Hospital pages */}
+        <Route path="/hospital/login" element={<HospitalLogin />} />          {/* ✅ login */}
+        <Route path="/hospital/dashboard" element={<HospitalDashboard />} />  {/* ✅ dashboard */}
+        <Route path="/hospital/patient/:qrId" element={<HospitalApprove />} /> {/* ✅ approve/withdraw */}
       </Routes>
     </>
   );
