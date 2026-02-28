@@ -65,21 +65,11 @@ const QRPage = () => {
       {/* 🔥 Send Button in Corner */}
       {qrUrl && !sent && (
         <button
-          onClick={handleSendToHospital}
-          style={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-            padding: "8px 14px",
-            backgroundColor: "#007bff",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Send to Hospital
-        </button>
+  onClick={handleSendToHospital}
+  className="send-btn"
+>
+  Send to Hospital
+</button>
       )}
 
       <h2>Your Treatment QR Code</h2>

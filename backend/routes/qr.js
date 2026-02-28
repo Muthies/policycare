@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const QR = require("../models/qr");
+const mongoose = require("mongoose");
+const QR = require("../models/qr");   // ⚠ Make sure filename is exactly "qr.js"
 const User = require("../models/User");
 
 /* ==============================
-   CREATE QR (Patient Generates)
+   CREATE QR
 ============================== */
 router.post("/create", async (req, res) => {
   try {
@@ -14,12 +15,22 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "UserId and HospitalId required" });
     }
 
-    const qr = await QR.create({
+    // Validate ObjectIds
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(hospitalId)
+    ) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    const qr = new QR({
       userId,
       hospitalId,
-      status: "pending",   // 🔥 default status
+      status: "pending",
       createdAt: new Date(),
     });
+
+    await qr.save();
 
     res.status(201).json({ qrId: qr._id });
 
@@ -34,20 +45,23 @@ router.post("/create", async (req, res) => {
 ============================== */
 router.put("/request/:qrId", async (req, res) => {
   try {
-    const qr = await QR.findById(req.params.qrId);
+    const { qrId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(qrId)) {
+      return res.status(400).json({ message: "Invalid QR ID" });
+    }
+
+    const qr = await QR.findById(qrId);
 
     if (!qr) {
       return res.status(404).json({ message: "QR not found" });
     }
 
-    if (qr.status !== "pending") {
-      return res.status(400).json({ message: "QR already requested or completed" });
-    }
-
+    // Allow sending even if status undefined
     qr.status = "requested";
     await qr.save();
 
-    res.json({ message: "Request sent to hospital successfully" });
+    res.json({ message: "Request sent successfully" });
 
   } catch (err) {
     console.error("QR Request Error:", err);
@@ -56,12 +70,18 @@ router.put("/request/:qrId", async (req, res) => {
 });
 
 /* ==============================
-   GET PENDING REQUESTS FOR HOSPITAL
+   GET REQUESTS FOR HOSPITAL
 ============================== */
 router.get("/hospital/:hospitalId", async (req, res) => {
   try {
+    const { hospitalId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(hospitalId)) {
+      return res.status(400).json({ message: "Invalid Hospital ID" });
+    }
+
     const requests = await QR.find({
-      hospitalId: req.params.hospitalId,
+      hospitalId,
       status: "requested",
     }).populate("userId", "name email aadhaar");
 
@@ -74,25 +94,26 @@ router.get("/hospital/:hospitalId", async (req, res) => {
 });
 
 /* ==============================
-   APPROVE QR (Hospital Approves)
+   APPROVE QR
 ============================== */
 router.put("/approve/:qrId", async (req, res) => {
   try {
-    const qr = await QR.findById(req.params.qrId);
+    const { qrId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(qrId)) {
+      return res.status(400).json({ message: "Invalid QR ID" });
+    }
+
+    const qr = await QR.findById(qrId);
 
     if (!qr) {
       return res.status(404).json({ message: "QR not found" });
-    }
-
-    if (qr.status === "completed") {
-      return res.status(400).json({ message: "Already approved" });
     }
 
     qr.status = "completed";
     qr.approvedAt = new Date();
     await qr.save();
 
-    // 🔥 Push treatment into user history
     await User.findByIdAndUpdate(qr.userId, {
       $push: {
         treatments: {

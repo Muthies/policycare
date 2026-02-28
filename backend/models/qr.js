@@ -13,7 +13,7 @@ const qrSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "completed"],
+    enum: ["pending", "requested", "completed"], // 🔥 added requested
     default: "pending",
   },
   createdAt: {
