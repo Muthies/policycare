@@ -1,0 +1,62 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const HospitalDashboard = () => {
+  const navigate = useNavigate();
+  const hospitalId = localStorage.getItem("hospitalId");
+  const [requests, setRequests] = useState([]);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await axios.get(
+          `https://policycare-backend.onrender.com/api/qr/hospital/${hospitalId}`
+        );
+        setRequests(res.data); // array of requested QR objects
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchRequests();
+  }, [hospitalId]);
+
+  return (
+    <div style={{ maxWidth: "800px", margin: "20px auto" }}>
+      <h2>Patient Requests</h2>
+      {requests.length === 0 ? (
+        <p>No requests yet</p>
+      ) : (
+        <table border="1" cellPadding="10" style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th>Patient Name</th>
+              <th>Aadhaar</th>
+              <th>QR ID</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((req) => (
+              <tr key={req.qrId}>
+                <td>{req.name}</td>
+                <td>{req.aadhaar}</td>
+                <td>{req.qrId}</td>
+                <td>{req.status}</td>
+                <td>
+                  <button onClick={() => navigate(`/hospital/patient/${req.qrId}`)}>
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+export default HospitalDashboard;
