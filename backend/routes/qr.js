@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const QR = require("../models/qr");   // ⚠ Make sure filename is exactly "qr.js"
+const QR = require("../models/qr");   // qr model
 const User = require("../models/User");
 
 /* ==============================
@@ -15,17 +15,14 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "UserId and HospitalId required" });
     }
 
-    // Validate ObjectIds
-    if (
-      !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(hospitalId)
-    ) {
-      return res.status(400).json({ message: "Invalid ID format" });
+    // ✅ Only validate userId (ObjectId)
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid User ID format" });
     }
 
     const qr = new QR({
       userId,
-      hospitalId,
+      hospitalId,  // string is fine
       status: "pending",
       createdAt: new Date(),
     });
@@ -33,7 +30,6 @@ router.post("/create", async (req, res) => {
     await qr.save();
 
     res.status(201).json({ qrId: qr._id });
-
   } catch (err) {
     console.error("QR Create Error:", err);
     res.status(500).json({ message: "QR creation failed" });
@@ -52,17 +48,12 @@ router.put("/request/:qrId", async (req, res) => {
     }
 
     const qr = await QR.findById(qrId);
+    if (!qr) return res.status(404).json({ message: "QR not found" });
 
-    if (!qr) {
-      return res.status(404).json({ message: "QR not found" });
-    }
-
-    // Allow sending even if status undefined
     qr.status = "requested";
     await qr.save();
 
     res.json({ message: "Request sent successfully" });
-
   } catch (err) {
     console.error("QR Request Error:", err);
     res.status(500).json({ message: "Failed to send request" });
@@ -76,17 +67,11 @@ router.get("/hospital/:hospitalId", async (req, res) => {
   try {
     const { hospitalId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(hospitalId)) {
-      return res.status(400).json({ message: "Invalid Hospital ID" });
-    }
-
-    const requests = await QR.find({
-      hospitalId,
-      status: "requested",
-    }).populate("userId", "name email aadhaar");
+    // ✅ No ObjectId check: hospitalId is a string
+    const requests = await QR.find({ hospitalId, status: "requested" })
+      .populate("userId", "name email aadhaar");
 
     res.json(requests);
-
   } catch (err) {
     console.error("Fetch Hospital Requests Error:", err);
     res.status(500).json({ message: "Failed to fetch requests" });
@@ -105,10 +90,7 @@ router.put("/approve/:qrId", async (req, res) => {
     }
 
     const qr = await QR.findById(qrId);
-
-    if (!qr) {
-      return res.status(404).json({ message: "QR not found" });
-    }
+    if (!qr) return res.status(404).json({ message: "QR not found" });
 
     qr.status = "completed";
     qr.approvedAt = new Date();
@@ -126,7 +108,6 @@ router.put("/approve/:qrId", async (req, res) => {
     });
 
     res.json({ message: "Treatment Approved & Updated" });
-
   } catch (err) {
     console.error("QR Approve Error:", err);
     res.status(500).json({ message: "Approval failed" });

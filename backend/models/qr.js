@@ -7,13 +7,12 @@ const qrSchema = new mongoose.Schema({
     required: true,
   },
   hospitalId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Hospital",
+    type: String,  // ✅ changed to string to match frontend "aravind"
     required: true,
   },
   status: {
     type: String,
-    enum: ["pending", "requested", "completed"], // 🔥 added requested
+    enum: ["pending", "requested", "completed"],
     default: "pending",
   },
   createdAt: {
