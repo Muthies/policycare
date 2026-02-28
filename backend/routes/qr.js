@@ -67,7 +67,7 @@ router.get("/hospital/:hospitalId", async (req, res) => {
     const { hospitalId } = req.params;
 
     const requests = await QR.find({ hospitalId, status: "requested" })
-      .populate("userId", "name email aadhaar");
+      .populate("userId", "name email aadhaar treatments");
 
     res.json(requests);
   } catch (err) {
@@ -78,7 +78,6 @@ router.get("/hospital/:hospitalId", async (req, res) => {
 
 /* ==============================
    GET SINGLE QR BY ID
-   (needed for HospitalApprove page)
 ============================== */
 router.get("/:qrId", async (req, res) => {
   try {
@@ -89,7 +88,7 @@ router.get("/:qrId", async (req, res) => {
     }
 
     const qr = await QR.findById(qrId)
-      .populate("userId", "name email aadhaar treatments"); // populate full patient info
+      .populate("userId", "name email aadhaar treatments");
 
     if (!qr) return res.status(404).json({ message: "QR not found" });
 
@@ -133,6 +132,30 @@ router.put("/approve/:qrId", async (req, res) => {
   } catch (err) {
     console.error("QR Approve Error:", err);
     res.status(500).json({ message: "Approval failed" });
+  }
+});
+
+/* ==============================
+   WITHDRAW QR REQUEST (optional)
+============================== */
+router.put("/withdraw/:qrId", async (req, res) => {
+  try {
+    const { qrId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(qrId)) {
+      return res.status(400).json({ message: "Invalid QR ID" });
+    }
+
+    const qr = await QR.findById(qrId);
+    if (!qr) return res.status(404).json({ message: "QR not found" });
+
+    qr.status = "withdrawn";
+    await qr.save();
+
+    res.json({ message: "Request Withdrawn" });
+  } catch (err) {
+    console.error("QR Withdraw Error:", err);
+    res.status(500).json({ message: "Failed to withdraw" });
   }
 });
 
