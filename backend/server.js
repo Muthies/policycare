@@ -18,8 +18,10 @@ const app = express();
 /* ===================== MIDDLEWARE ===================== */
 app.use(
   cors({
-    origin: "*", // ⚠️ In production restrict this
+    origin: "http://localhost:3000", // allow your React frontend only
     methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // if you plan to use cookies
   })
 );
 

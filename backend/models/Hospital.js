@@ -8,18 +8,6 @@ const HospitalSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // 🔥 Login credentials
-    hospitalId: {
-      type: String,
-      required: true,
-      unique: true, // must be unique for each hospital
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true, // you can hash later for security
-    },
-
     address: {
       type: String,
       required: true,
@@ -105,7 +93,7 @@ const HospitalSchema = new mongoose.Schema(
   }
 );
 
-// 🔥 Geo index for real distance sorting
+// 🔥 IMPORTANT: Geo index for real distance sorting
 HospitalSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Hospital", HospitalSchema);
