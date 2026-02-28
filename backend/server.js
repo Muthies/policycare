@@ -27,6 +27,7 @@ app.use(
 
 app.use(express.json());
 
+
 /* ===================== DATABASE ===================== */
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -120,7 +121,32 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 });
+// Hospital Login
+app.post("/api/hospital/login", async (req, res) => {
+  try {
+    const { hospitalId, password } = req.body;
 
+    if (!hospitalId || !password) {
+      return res.status(400).json({ success: false, msg: "Hospital ID and password required" });
+    }
+
+    const hospital = await Hospital.findOne({ hospitalId });
+    if (!hospital) {
+      return res.status(400).json({ success: false, msg: "Invalid credentials" });
+    }
+
+    // If you stored hashed passwords, use bcrypt
+    const isMatch = await bcrypt.compare(password, hospital.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, msg: "Invalid credentials" });
+    }
+
+    res.json({ success: true, hospitalId: hospital.hospitalId, name: hospital.hospitalName });
+  } catch (err) {
+    console.error("Hospital login error:", err.message);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+});
 /* ===================== HOSPITAL FILTER ===================== */
 app.get("/api/hospitals/insurance/:provider", async (req, res) => {
   try {
