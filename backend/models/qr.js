@@ -6,30 +6,33 @@ const qrSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+
+  // ✅ Use STRING (same as Hospital login hospitalId)
   hospitalId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Hospital",
+    type: String,
     required: true,
   },
+
   status: {
     type: String,
     enum: ["pending", "requested", "completed"],
     default: "pending",
   },
+
   createdAt: {
     type: Date,
     default: Date.now,
   },
+
   approvedAt: Date,
 
-  // ✅ NEW FIELD
   requestDate: {
-    type: String, // format: YYYY-MM-DD
+    type: String,
     required: true,
   },
 });
 
-// ✅ Prevent duplicate same hospital same day
+// prevent same hospital same day
 qrSchema.index(
   { userId: 1, hospitalId: 1, requestDate: 1 },
   { unique: true }
