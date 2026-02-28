@@ -7,13 +7,34 @@ const UserSchema = new mongoose.Schema({
   address: { type: String, required: true },
   state: { type: String, required: true },
   aadhaar: { type: String, required: true },
-  
-  // 👇 Add this field
+
   role: { 
     type: String, 
     enum: ['user', 'admin'], 
     default: 'user' 
-  }
+  },
+
+  // ✅ ADD THIS SECTION
+  treatments: [
+    {
+      hospitalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Hospital"
+      },
+      qrId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "QR"
+      },
+      status: {
+        type: String,
+        default: "completed"
+      },
+      date: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ]
 });
 
 module.exports = mongoose.model('User', UserSchema);

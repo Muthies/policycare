@@ -9,6 +9,7 @@ import HospitalList from "./components/HospitalList";
 import QRPage from "./components/QRPage";
 import TreatmentPage from "./components/TreatmentPage";
 import AdminDashboard from "./components/AdminDashboard";
+import HospitalApprove from "./components/HospitalApprove";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/qr" element={<QRPage />} />
         <Route path="/treatment" element={<TreatmentPage />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route path="/hospital/approve/:qrId" element={<HospitalApprove />} />
       </Routes>
     </>
   );

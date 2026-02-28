@@ -194,10 +194,15 @@ console.log("Longitude:", position.coords.longitude);
   }, [hospitals, treatmentFilter, sortMode, insurance]);
 
   /* ---------------- QR ---------------- */
-  const handleGenerateQR = (hospitalName) => {
-    localStorage.setItem("hospital", hospitalName);
-    window.location.href = "/qr";
-  };
+  /* ---------------- QR ---------------- */
+const handleGenerateQR = (hospital) => {
+  // ✅ Store hospitalId properly
+  localStorage.setItem("hospitalId", hospital._id);
+  localStorage.setItem("hospitalName", hospital.hospitalName);
+
+  // Navigate to QR page
+  window.location.href = "/qr";
+};
 
   /* ---------------- REVIEW ---------------- */
   const handleReviewSubmit = async () => {
@@ -296,21 +301,22 @@ console.log("Longitude:", position.coords.longitude);
                 )}
 
                 <td>
-                  <div className="action-buttons">
-                    <button
-                      className="btn-green"
-                      onClick={() => handleGenerateQR(h.hospitalName)}
-                    >
-                      QR
-                    </button>
-                    <button
-                      className="btn-review"
-                      onClick={() => setSelectedHospital(h)}
-                    >
-                      Review
-                    </button>
-                  </div>
-                </td>
+  <div className="action-buttons">
+    <button
+      className="btn-green"
+      onClick={() => handleGenerateQR(h)}
+    >
+      QR
+    </button>
+
+    <button
+      className="btn-review"
+      onClick={() => setSelectedHospital(h)}
+    >
+      Review
+    </button>
+  </div>
+</td>
               </tr>
             ))
           ) : (

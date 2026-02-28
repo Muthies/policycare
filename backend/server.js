@@ -45,6 +45,7 @@ app.get("/api/health", (req, res) => {
 /* ===================== ROUTES ===================== */
 app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/qr", require("./routes/qr"));
 
 /* ===================== AUTH ===================== */
 
