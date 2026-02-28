@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
-
+import UserProfile from "./UserProfile";
 /* ---------------- STAR RATING ---------------- */
 const StarRating = ({ value }) => {
   const rounded = Math.round(value || 0);
@@ -13,7 +13,7 @@ const StarRating = ({ value }) => {
     </span>
   );
 };
-
+const userId = localStorage.getItem("userId");
 const HospitalList = () => {
   const [hospitals, setHospitals] = useState([]);
   const [filteredHospitals, setFilteredHospitals] = useState([]);
@@ -233,6 +233,11 @@ const handleGenerateQR = (hospital) => {
 
   return (
     <div className="table-container">
+
+    {/* ✅ USER PROFILE SECTION */}
+    {userId && <UserProfile userId={userId} />}
+
+    <div className="table-container">
       <h2>Eligible Hospitals</h2>
 
       <p className="info-text">
@@ -301,6 +306,7 @@ const handleGenerateQR = (hospital) => {
                 )}
 
                 <td>
+                
   <div className="action-buttons">
     <button
       className="btn-green"
@@ -383,6 +389,7 @@ const handleGenerateQR = (hospital) => {
       >
         💬 Support Bot
       </a>
+    </div>
     </div>
   );
 };
