@@ -7,6 +7,8 @@ import "../style.css";
 
 const QRPage = () => {
   const [qrUrl, setQrUrl] = useState("");
+  const [qrId, setQrId] = useState("");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     const generateQR = async () => {
@@ -25,10 +27,11 @@ const QRPage = () => {
           { userId, hospitalId }
         );
 
-        const qrId = res.data.qrId;
+        const generatedQrId = res.data.qrId;
+        setQrId(generatedQrId);
 
-        // 🔥 Encode approval URL in QR
-        const approvalLink = `https://policycare-backend.onrender.com/hospital/approve/${qrId}`;
+        // ⚠️ IMPORTANT: This should point to FRONTEND URL (change later when deployed)
+        const approvalLink = `${window.location.origin}/hospital/approve/${generatedQrId}`;
 
         const url = await QRCode.toDataURL(approvalLink);
         setQrUrl(url);
@@ -41,8 +44,44 @@ const QRPage = () => {
     generateQR();
   }, []);
 
+  // 🔥 Send to Hospital
+  const handleSendToHospital = async () => {
+    try {
+      await axios.put(
+        `https://policycare-backend.onrender.com/api/qr/request/${qrId}`
+      );
+
+      setSent(true);
+      alert("Request sent to hospital successfully");
+    } catch (error) {
+      console.error("Send Error:", error);
+      alert("Failed to send request");
+    }
+  };
+
   return (
-    <div className="qr-container">
+    <div className="qr-container" style={{ position: "relative" }}>
+      
+      {/* 🔥 Send Button in Corner */}
+      {qrUrl && !sent && (
+        <button
+          onClick={handleSendToHospital}
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            padding: "8px 14px",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Send to Hospital
+        </button>
+      )}
+
       <h2>Your Treatment QR Code</h2>
 
       {qrUrl ? (
