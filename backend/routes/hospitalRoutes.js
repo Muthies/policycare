@@ -39,8 +39,13 @@ router.get("/nearby/search", async (req, res) => {
         ? [
             {
               $match: {
-                acceptedInsurance: { $in: [insurance] },
-              },
+  acceptedInsurance: {
+    $elemMatch: {
+      $regex: insurance,
+      $options: "i",
+    },
+  },
+},
             },
           ]
         : []),
