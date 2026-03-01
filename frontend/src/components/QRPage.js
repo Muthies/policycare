@@ -14,16 +14,24 @@ const QRPage = () => {
     const generateQR = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        const hospitalUsername = localStorage.getItem("hospitalUsername"); // ✅ use hospitalUsername
+        const hospitalId = localStorage.getItem("hospitalId"); // ✅ FIXED
 
-        if (!userId || !hospitalUsername) {
-          alert("User or Hospital not selected properly");
+        console.log("User:", userId);
+        console.log("Hospital:", hospitalId);
+
+        if (!userId) {
+          alert("User not logged in");
+          return;
+        }
+
+        if (!hospitalId) {
+          alert("Hospital not selected properly");
           return;
         }
 
         const res = await axios.post(
           "https://policycare-backend.onrender.com/api/qr/create",
-          { userId, hospitalUsername } // ✅ send hospitalUsername
+          { userId, hospitalId } // ✅ FIXED
         );
 
         const generatedQrId = res.data.qrId;
@@ -42,6 +50,7 @@ const QRPage = () => {
         }
       }
     };
+
     generateQR();
   }, []);
 
