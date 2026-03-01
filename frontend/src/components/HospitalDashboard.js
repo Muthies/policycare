@@ -1,30 +1,38 @@
+// frontend/src/components/HospitalDashboard.js
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const HospitalDashboard = () => {
   const navigate = useNavigate();
-  const hospitalId = localStorage.getItem("hospitalId");
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
-  const fetchRequests = async () => {
-    try {
-      const hospitalId = localStorage.getItem("hospitalId")?.trim(); // ✅ trim spaces
-      console.log("Hospital ID in dashboard:", hospitalId); // debug
+    const fetchRequests = async () => {
+      try {
+        // ✅ Get hospitalUsername from localStorage instead of hospitalId
+        const hospitalUsername = localStorage.getItem("hospitalUsername")?.trim();
+        console.log("Hospital Username in dashboard:", hospitalUsername); // debug
 
-      const res = await axios.get(
-        `https://policycare-backend.onrender.com/api/qr/hospital/${hospitalId}`
-      );
-      console.log("Requests fetched:", res.data); // debug
-      setRequests(res.data); // array of requested QR objects
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        if (!hospitalUsername) {
+          console.error("No hospitalUsername found in localStorage");
+          return;
+        }
 
-  fetchRequests();
-}, []);
+        // ✅ Fetch requests for this hospitalUsername
+        const res = await axios.get(
+          `https://policycare-backend.onrender.com/api/qr/hospital/${hospitalUsername}`
+        );
+        console.log("Requests fetched:", res.data); // debug
+        setRequests(res.data);
+      } catch (err) {
+        console.error("Failed to fetch requests:", err);
+      }
+    };
+
+    fetchRequests();
+  }, []);
 
   return (
     <div style={{ maxWidth: "800px", margin: "20px auto" }}>

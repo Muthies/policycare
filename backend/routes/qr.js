@@ -11,13 +11,13 @@ const User = require("../models/User");
 ============================== */
 router.post("/create", async (req, res) => {
   try {
-    let { userId, hospitalId } = req.body;
+    let { userId, hospitalUsername } = req.body;
 
-    if (!userId || !hospitalId) {
-      return res.status(400).json({ message: "UserId and HospitalId required" });
+    if (!userId || !hospitalUsername) {
+      return res.status(400).json({ message: "UserId and Hospital Username required" });
     }
 
-    hospitalId = hospitalId.trim(); // ✅ trim spaces to match DB
+    hospitalUsername = hospitalUsername.trim(); // trim spaces to match DB
 
     // Check valid ObjectId for user
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -27,7 +27,7 @@ router.post("/create", async (req, res) => {
     // Create QR
     const qr = new QR({
       userId,
-      hospitalId,
+      hospitalUsername,
       status: "pending",
       createdAt: new Date(),
       // requestDate auto-generated in schema
@@ -52,7 +52,7 @@ router.post("/create", async (req, res) => {
 
 /* ==============================
    SEND REQUEST TO HOSPITAL
-============================== */
+============================= */
 router.put("/request/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;
@@ -76,14 +76,14 @@ router.put("/request/:qrId", async (req, res) => {
 
 /* ==============================
    GET REQUESTS FOR HOSPITAL
-============================== */
-router.get("/hospital/:hospitalId", async (req, res) => {
+============================= */
+router.get("/hospital/:hospitalUsername", async (req, res) => {
   try {
-    let { hospitalId } = req.params;
-    hospitalId = hospitalId.trim(); // ✅ trim to match DB
+    let { hospitalUsername } = req.params;
+    hospitalUsername = hospitalUsername.trim(); // trim to match DB
 
     // Fetch only requested QRs
-    const requests = await QR.find({ hospitalId, status: "requested" })
+    const requests = await QR.find({ hospitalUsername, status: "requested" })
       .populate("userId", "name email aadhaar treatments");
 
     res.json(requests);
@@ -95,7 +95,7 @@ router.get("/hospital/:hospitalId", async (req, res) => {
 
 /* ==============================
    GET SINGLE QR BY ID
-============================== */
+============================= */
 router.get("/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;
@@ -118,7 +118,7 @@ router.get("/:qrId", async (req, res) => {
 
 /* ==============================
    APPROVE QR
-============================== */
+============================= */
 router.put("/approve/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;
@@ -138,7 +138,7 @@ router.put("/approve/:qrId", async (req, res) => {
     await User.findByIdAndUpdate(qr.userId, {
       $push: {
         treatments: {
-          hospitalId: qr.hospitalId,
+          hospitalUsername: qr.hospitalUsername,
           qrId: qr._id,
           status: "completed",
           date: new Date(),
@@ -155,7 +155,7 @@ router.put("/approve/:qrId", async (req, res) => {
 
 /* ==============================
    WITHDRAW QR REQUEST
-============================== */
+============================= */
 router.put("/withdraw/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;

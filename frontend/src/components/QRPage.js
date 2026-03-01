@@ -12,37 +12,36 @@ const QRPage = () => {
 
   useEffect(() => {
     const generateQR = async () => {
-  try {
-    const userId = localStorage.getItem("userId");
-    const hospitalId = localStorage.getItem("hospitalId");
+      try {
+        const userId = localStorage.getItem("userId");
+        const hospitalUsername = localStorage.getItem("hospitalUsername"); // ✅ use hospitalUsername
 
-    if (!userId || !hospitalId) {
-      alert("User or Hospital not selected properly");
-      return;
-    }
+        if (!userId || !hospitalUsername) {
+          alert("User or Hospital not selected properly");
+          return;
+        }
 
-    const res = await axios.post(
-      "https://policycare-backend.onrender.com/api/qr/create",
-      { userId, hospitalId }
-    );
+        const res = await axios.post(
+          "https://policycare-backend.onrender.com/api/qr/create",
+          { userId, hospitalUsername } // ✅ send hospitalUsername
+        );
 
-    const generatedQrId = res.data.qrId;
-    setQrId(generatedQrId);
+        const generatedQrId = res.data.qrId;
+        setQrId(generatedQrId);
 
-    const approvalLink = `${window.location.origin}/hospital/approve/${generatedQrId}`;
-    const url = await QRCode.toDataURL(approvalLink);
-    setQrUrl(url);
+        const approvalLink = `${window.location.origin}/hospital/approve/${generatedQrId}`;
+        const url = await QRCode.toDataURL(approvalLink);
+        setQrUrl(url);
 
-  } catch (error) {
-    // ✅ Handle already requested today
-    if (error.response && error.response.data.message) {
-      alert(error.response.data.message);
-    } else {
-      console.error("QR Generation Error:", error);
-      alert("Failed to generate QR");
-    }
-  }
-};
+      } catch (error) {
+        if (error.response && error.response.data.message) {
+          alert(error.response.data.message);
+        } else {
+          console.error("QR Generation Error:", error);
+          alert("Failed to generate QR");
+        }
+      }
+    };
     generateQR();
   }, []);
 
@@ -63,15 +62,10 @@ const QRPage = () => {
 
   return (
     <div className="qr-container" style={{ position: "relative" }}>
-      
-      {/* 🔥 Send Button in Corner */}
       {qrUrl && !sent && (
-        <button
-  onClick={handleSendToHospital}
-  className="send-btn"
->
-  Send to Hospital
-</button>
+        <button onClick={handleSendToHospital} className="send-btn">
+          Send to Hospital
+        </button>
       )}
 
       <h2>Your Treatment QR Code</h2>

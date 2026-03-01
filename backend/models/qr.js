@@ -10,8 +10,8 @@ const qrSchema = new mongoose.Schema({
     required: true,
   },
 
-  // 🔹 Hospital ID as string (matches hospital login)
-  hospitalId: {
+  // 🔹 Hospital username as string (matches hospital login)
+  hospitalUsername: {
     type: String,
     required: true,
   },
@@ -41,7 +41,7 @@ const qrSchema = new mongoose.Schema({
 
 // 🔹 Prevent duplicate requests for same hospital same day by same user
 qrSchema.index(
-  { userId: 1, hospitalId: 1, requestDate: 1 },
+  { userId: 1, hospitalUsername: 1, requestDate: 1 },
   { unique: true }
 );
 
