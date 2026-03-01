@@ -12,35 +12,37 @@ const QRPage = () => {
 
   useEffect(() => {
     const generateQR = async () => {
-      try {
-        const userId = localStorage.getItem("userId");
-        const hospitalId = localStorage.getItem("hospitalId");
+  try {
+    const userId = localStorage.getItem("userId");
+    const hospitalId = localStorage.getItem("hospitalId");
 
-        if (!userId || !hospitalId) {
-          alert("User or Hospital not selected properly");
-          return;
-        }
+    if (!userId || !hospitalId) {
+      alert("User or Hospital not selected properly");
+      return;
+    }
 
-        // 🔥 Create QR record in backend
-        const res = await axios.post(
-          "https://policycare-backend.onrender.com/api/qr/create",
-          { userId, hospitalId }
-        );
+    const res = await axios.post(
+      "https://policycare-backend.onrender.com/api/qr/create",
+      { userId, hospitalId }
+    );
 
-        const generatedQrId = res.data.qrId;
-        setQrId(generatedQrId);
+    const generatedQrId = res.data.qrId;
+    setQrId(generatedQrId);
 
-        // ⚠️ IMPORTANT: This should point to FRONTEND URL (change later when deployed)
-        const approvalLink = `${window.location.origin}/hospital/approve/${generatedQrId}`;
+    const approvalLink = `${window.location.origin}/hospital/approve/${generatedQrId}`;
+    const url = await QRCode.toDataURL(approvalLink);
+    setQrUrl(url);
 
-        const url = await QRCode.toDataURL(approvalLink);
-        setQrUrl(url);
-
-      } catch (error) {
-        console.error("QR Generation Error:", error);
-      }
-    };
-
+  } catch (error) {
+    // ✅ Handle already requested today
+    if (error.response && error.response.data.message) {
+      alert(error.response.data.message);
+    } else {
+      console.error("QR Generation Error:", error);
+      alert("Failed to generate QR");
+    }
+  }
+};
     generateQR();
   }, []);
 
