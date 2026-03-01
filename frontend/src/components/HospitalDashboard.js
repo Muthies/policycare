@@ -8,19 +8,23 @@ const HospitalDashboard = () => {
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const res = await axios.get(
-          `https://policycare-backend.onrender.com/api/qr/hospital/${hospitalId}`
-        );
-        setRequests(res.data); // array of requested QR objects
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const fetchRequests = async () => {
+    try {
+      const hospitalId = localStorage.getItem("hospitalId")?.trim(); // ✅ trim spaces
+      console.log("Hospital ID in dashboard:", hospitalId); // debug
 
-    fetchRequests();
-  }, [hospitalId]);
+      const res = await axios.get(
+        `https://policycare-backend.onrender.com/api/qr/hospital/${hospitalId}`
+      );
+      console.log("Requests fetched:", res.data); // debug
+      setRequests(res.data); // array of requested QR objects
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchRequests();
+}, []);
 
   return (
     <div style={{ maxWidth: "800px", margin: "20px auto" }}>
