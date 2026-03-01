@@ -8,16 +8,18 @@ const HospitalSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // 🔥 Login credentials
-    hospitalId: {
+    // 🔥 Login credentials (UPDATED)
+    hospitalUsername: {
       type: String,
       required: true,
-      unique: true, // must be unique for each hospital
+      unique: true, // must be unique
       trim: true,
+      lowercase: true, // prevents duplicate like Apollo / apollo
     },
+
     password: {
       type: String,
-      required: true, // you can hash later for security
+      required: true,
     },
 
     address: {
@@ -41,7 +43,8 @@ const HospitalSchema = new mongoose.Schema(
           validator: function (value) {
             return value.length === 2;
           },
-          message: "Coordinates must contain exactly [longitude, latitude]",
+          message:
+            "Coordinates must contain exactly [longitude, latitude]",
         },
       },
     },
@@ -105,7 +108,7 @@ const HospitalSchema = new mongoose.Schema(
   }
 );
 
-// 🔥 Geo index for real distance sorting
+// 🔥 Geo index
 HospitalSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Hospital", HospitalSchema);

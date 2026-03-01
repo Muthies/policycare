@@ -7,19 +7,20 @@ import axios from "axios";
 const HospitalLogin = () => {
   const navigate = useNavigate();
   const { qrId } = useParams(); // if accessed via QR scan
-  const [hospitalId, setHospitalId] = useState("");
+
+  const [hospitalUsername, setHospitalUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // 🔥 If QR scan, auto-login
+    // 🔥 If QR scan, auto-fetch hospital from QR
     if (qrId) {
-      // Fetch QR info and hospital info from backend
       const fetchQr = async () => {
         try {
           const res = await axios.get(
             `https://policycare-backend.onrender.com/api/qr/${qrId}`
           );
+
           const qrData = res.data;
 
           if (!qrData) {
@@ -27,10 +28,13 @@ const HospitalLogin = () => {
             return;
           }
 
-          // Auto-login using hospitalId from QR
-          setHospitalId(qrData.hospitalId);
+          // ✅ Set hospitalUsername from QR
+          setHospitalUsername(qrData.hospitalUsername);
 
-          // Navigate directly to patient details
+          // ✅ Store in localStorage
+          localStorage.setItem("hospitalUsername", qrData.hospitalUsername);
+
+          // Redirect to patient details
           navigate(`/hospital/patient/${qrId}`);
         } catch (err) {
           console.error(err);
@@ -49,12 +53,17 @@ const HospitalLogin = () => {
     try {
       const res = await axios.post(
         "https://policycare-backend.onrender.com/api/hospital/login",
-        { hospitalId, password }
+        {
+          hospitalUsername,
+          password,
+        }
       );
 
       if (res.data.success) {
-        localStorage.setItem("hospitalId", hospitalId);
-        navigate("/hospital/dashboard"); // redirect to hospital dashboard
+        // ✅ Store correct key
+        localStorage.setItem("hospitalUsername", hospitalUsername);
+
+        navigate("/hospital/dashboard");
       } else {
         setError("Invalid credentials");
       }
@@ -67,16 +76,17 @@ const HospitalLogin = () => {
   return (
     <div className="login-container">
       <h2>Hospital Login</h2>
+
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {!qrId && (
         <form onSubmit={handleLogin}>
           <div>
-            <label>Hospital ID:</label>
+            <label>Hospital Username:</label>
             <input
               type="text"
-              value={hospitalId}
-              onChange={(e) => setHospitalId(e.target.value)}
+              value={hospitalUsername}
+              onChange={(e) => setHospitalUsername(e.target.value)}
               required
             />
           </div>
