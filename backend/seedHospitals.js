@@ -1,14 +1,22 @@
 // seedHospitals.js
-const { MongoClient } = require("mongodb");
 
-const uri = "mongodb+srv://22csec15_db_user:policycare@cluster0.30lj2xn.mongodb.net/policycare?retryWrites=true&w=majority&appName=Cluster0";
+require("dotenv").config();
+const { MongoClient } = require("mongodb");
+const bcrypt = require("bcrypt");
+
+const uri = process.env.MONGO_URI;
+
+if (!uri) {
+  console.error("❌ MONGO_URI not found in .env file");
+  process.exit(1);
+}
+
 const client = new MongoClient(uri);
 
 const hospitalData = [
-  // Aravind Eye Hospital
   {
     hospitalName: "Aravind Eye Hospital",
-    hospitalUsername: "aravind",   // ✅ changed
+    hospitalUsername: "aravind",
     password: "12345",
     address: "Anna Nagar, Madurai, Tamil Nadu",
     location: { type: "Point", coordinates: [78.1304, 9.9269] },
@@ -41,11 +49,9 @@ const hospitalData = [
       "Emergency Eye Care"
     ]
   },
-
-  // Government Rajaji Hospital
   {
     hospitalName: "Government Rajaji Hospital",
-    hospitalUsername: "rajaji",   // ✅ changed
+    hospitalUsername: "rajaji",
     password: "12345",
     address: "Panagal Road, Madurai, Tamil Nadu",
     location: { type: "Point", coordinates: [78.1190, 9.9312] },
@@ -70,11 +76,9 @@ const hospitalData = [
       "Heart Treatment"
     ]
   },
-
-  // Apollo Hospital
   {
     hospitalName: "Apollo Hospital Madurai",
-    hospitalUsername: "apollo",   // ✅ changed
+    hospitalUsername: "apollo",
     password: "12345",
     address: "NH44, Mattuthavani, Madurai, Tamil Nadu",
     location: { type: "Point", coordinates: [78.1235, 9.9231] },
@@ -104,11 +108,9 @@ const hospitalData = [
       "Health Checkups"
     ]
   },
-
-  // Velammal Hospital
   {
     hospitalName: "Velammal Hospital",
-    hospitalUsername: "velammal",   // ✅ changed
+    hospitalUsername: "velammal",
     password: "12345",
     address: "Alagar Koil Road, Madurai, Tamil Nadu",
     location: { type: "Point", coordinates: [78.1102, 9.9400] },
@@ -133,11 +135,9 @@ const hospitalData = [
       "Diagnostics"
     ]
   },
-
-  // Rajamani Hospital
   {
     hospitalName: "Rajamani Hospital",
-    hospitalUsername: "rajamani",   // ✅ changed
+    hospitalUsername: "rajamani",
     password: "12345",
     address: "North Veli Street, Madurai, Tamil Nadu",
     location: { type: "Point", coordinates: [78.1195, 9.9305] },
@@ -165,21 +165,32 @@ const hospitalData = [
 
 async function seed() {
   try {
+    console.log("🔄 Connecting to MongoDB...");
     await client.connect();
+
     const db = client.db("policycare");
     const collection = db.collection("hospitals");
 
+    console.log("🗑 Deleting old hospital records...");
     await collection.deleteMany({});
+
+    console.log("🔐 Hashing passwords...");
+    for (let hospital of hospitalData) {
+      hospital.password = await bcrypt.hash(hospital.password, 10);
+    }
+
+    console.log("📥 Inserting hospital records...");
     const result = await collection.insertMany(hospitalData);
 
+    console.log("📍 Creating 2dsphere index...");
     await collection.createIndex({ location: "2dsphere" });
 
     console.log(`✅ Inserted ${result.insertedCount} hospital records successfully`);
-    console.log("✅ 2dsphere index created successfully");
   } catch (err) {
     console.error("❌ Error seeding hospitals:", err);
   } finally {
     await client.close();
+    console.log("🔒 MongoDB connection closed");
   }
 }
 

@@ -8,13 +8,13 @@ const HospitalSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // 🔥 Login credentials (UPDATED)
+    // 🔐 Login Username (USED ONLY FOR LOGIN)
     hospitalUsername: {
       type: String,
       required: true,
-      unique: true, // must be unique
+      unique: true,
       trim: true,
-      lowercase: true, // prevents duplicate like Apollo / apollo
+      lowercase: true,
     },
 
     password: {
@@ -28,7 +28,7 @@ const HospitalSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // 🌍 GEOJSON LOCATION (REQUIRED FOR $geoNear)
+    // 🌍 GEOJSON LOCATION (Used for distance search)
     location: {
       type: {
         type: String,
@@ -37,14 +37,13 @@ const HospitalSchema = new mongoose.Schema(
         required: true,
       },
       coordinates: {
-        type: [Number], // MUST be [longitude, latitude]
+        type: [Number], // [longitude, latitude]
         required: true,
         validate: {
           validator: function (value) {
             return value.length === 2;
           },
-          message:
-            "Coordinates must contain exactly [longitude, latitude]",
+          message: "Coordinates must contain exactly [longitude, latitude]",
         },
       },
     },
@@ -103,12 +102,13 @@ const HospitalSchema = new mongoose.Schema(
       },
     ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// 🔥 Geo index
+// 🌍 Geo Index for $geoNear
 HospitalSchema.index({ location: "2dsphere" });
+
+// 🔥 Ensure username index (extra safety)
+HospitalSchema.index({ hospitalUsername: 1 }, { unique: true });
 
 module.exports = mongoose.model("Hospital", HospitalSchema);

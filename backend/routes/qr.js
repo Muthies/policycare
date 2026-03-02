@@ -3,56 +3,63 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const QR = require("../models/qr");   // QR model
+
+const QR = require("../models/qr");
 const User = require("../models/User");
+const Hospital = require("../models/Hospital");
 
 /* ==============================
    CREATE QR
 ============================== */
 router.post("/create", async (req, res) => {
   try {
-    let { userId, hospitalUsername } = req.body;
+    const { userId, hospitalId } = req.body;
 
-    if (!userId || !hospitalUsername) {
-      return res.status(400).json({ message: "UserId and Hospital Username required" });
+    if (!userId || !hospitalId) {
+      return res.status(400).json({
+        message: "UserId and HospitalId required",
+      });
     }
 
-    hospitalUsername = hospitalUsername.trim(); // trim spaces to match DB
-
-    // Check valid ObjectId for user
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid User ID format" });
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(hospitalId)
+    ) {
+      return res.status(400).json({
+        message: "Invalid ID format",
+      });
     }
 
-    // Create QR
+    // Check if hospital exists
+    const hospital = await Hospital.findById(hospitalId);
+    if (!hospital) {
+      return res.status(404).json({ message: "Hospital not found" });
+    }
+
     const qr = new QR({
       userId,
-      hospitalUsername,
+      hospitalId,
       status: "pending",
-      createdAt: new Date(),
-      // requestDate auto-generated in schema
     });
 
     await qr.save();
 
     res.status(201).json({ qrId: qr._id });
-
   } catch (err) {
-    // Duplicate request for same hospital same day
     if (err.code === 11000) {
       return res.status(400).json({
         message: "You have already requested this hospital today",
       });
     }
 
-    console.error("QR Create Error FULL:", err);
+    console.error("QR Create Error:", err);
     res.status(500).json({ message: "QR creation failed" });
   }
 });
 
 /* ==============================
    SEND REQUEST TO HOSPITAL
-============================= */
+============================== */
 router.put("/request/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;
@@ -76,15 +83,19 @@ router.put("/request/:qrId", async (req, res) => {
 
 /* ==============================
    GET REQUESTS FOR HOSPITAL
-============================= */
-router.get("/hospital/:hospitalUsername", async (req, res) => {
+============================== */
+router.get("/hospital/:hospitalId", async (req, res) => {
   try {
-    let { hospitalUsername } = req.params;
-    hospitalUsername = hospitalUsername.trim(); // trim to match DB
+    const { hospitalId } = req.params;
 
-    // Fetch only requested QRs
-    const requests = await QR.find({ hospitalUsername, status: "requested" })
-      .populate("userId", "name email aadhaar treatments");
+    if (!mongoose.Types.ObjectId.isValid(hospitalId)) {
+      return res.status(400).json({ message: "Invalid Hospital ID" });
+    }
+
+    const requests = await QR.find({
+      hospitalId,
+      status: "requested",
+    }).populate("userId", "name email aadhaar treatments");
 
     res.json(requests);
   } catch (err) {
@@ -95,7 +106,7 @@ router.get("/hospital/:hospitalUsername", async (req, res) => {
 
 /* ==============================
    GET SINGLE QR BY ID
-============================= */
+============================== */
 router.get("/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;
@@ -105,20 +116,21 @@ router.get("/:qrId", async (req, res) => {
     }
 
     const qr = await QR.findById(qrId)
-      .populate("userId", "name email aadhaar treatments");
+      .populate("userId", "name email aadhaar treatments")
+      .populate("hospitalId", "hospitalName hospitalUsername");
 
     if (!qr) return res.status(404).json({ message: "QR not found" });
 
     res.json(qr);
   } catch (err) {
-    console.error("Fetch QR by ID Error:", err);
+    console.error("Fetch QR Error:", err);
     res.status(500).json({ message: "Failed to fetch QR" });
   }
 });
 
 /* ==============================
    APPROVE QR
-============================= */
+============================== */
 router.put("/approve/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;
@@ -134,11 +146,10 @@ router.put("/approve/:qrId", async (req, res) => {
     qr.approvedAt = new Date();
     await qr.save();
 
-    // Add treatment to user record
     await User.findByIdAndUpdate(qr.userId, {
       $push: {
         treatments: {
-          hospitalUsername: qr.hospitalUsername,
+          hospitalId: qr.hospitalId,
           qrId: qr._id,
           status: "completed",
           date: new Date(),
@@ -154,8 +165,8 @@ router.put("/approve/:qrId", async (req, res) => {
 });
 
 /* ==============================
-   WITHDRAW QR REQUEST
-============================= */
+   WITHDRAW QR
+============================== */
 router.put("/withdraw/:qrId", async (req, res) => {
   try {
     const { qrId } = req.params;
@@ -167,7 +178,7 @@ router.put("/withdraw/:qrId", async (req, res) => {
     const qr = await QR.findById(qrId);
     if (!qr) return res.status(404).json({ message: "QR not found" });
 
-    qr.status = "withdrawn";
+    qr.status = "pending";
     await qr.save();
 
     res.json({ message: "Request Withdrawn" });

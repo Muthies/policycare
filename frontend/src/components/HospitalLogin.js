@@ -6,14 +6,16 @@ import axios from "axios";
 
 const HospitalLogin = () => {
   const navigate = useNavigate();
-  const { qrId } = useParams(); // if accessed via QR scan
+  const { qrId } = useParams();
 
   const [hospitalUsername, setHospitalUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  /* =====================================
+     QR SCAN AUTO FLOW
+  ===================================== */
   useEffect(() => {
-    // 🔥 If QR scan, auto-fetch hospital from QR
     if (qrId) {
       const fetchQr = async () => {
         try {
@@ -23,19 +25,17 @@ const HospitalLogin = () => {
 
           const qrData = res.data;
 
-          if (!qrData) {
+          if (!qrData || !qrData.hospitalId) {
             setError("Invalid QR");
             return;
           }
 
-          // ✅ Set hospitalUsername from QR
-          setHospitalUsername(qrData.hospitalUsername);
+          // ✅ STORE hospitalId (NOT username)
+          localStorage.setItem("hospitalId", qrData.hospitalId._id);
 
-          // ✅ Store in localStorage
-          localStorage.setItem("hospitalUsername", qrData.hospitalUsername);
-
-          // Redirect to patient details
+          // Go to patient approval page
           navigate(`/hospital/patient/${qrId}`);
+
         } catch (err) {
           console.error(err);
           setError("QR not valid or expired");
@@ -46,6 +46,9 @@ const HospitalLogin = () => {
     }
   }, [qrId, navigate]);
 
+  /* =====================================
+     NORMAL LOGIN
+  ===================================== */
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -60,13 +63,16 @@ const HospitalLogin = () => {
       );
 
       if (res.data.success) {
-        // ✅ Store correct key
-        localStorage.setItem("hospitalUsername", hospitalUsername);
+
+        // ✅ STORE hospitalId from backend response
+        localStorage.setItem("hospitalId", res.data.hospital._id);
 
         navigate("/hospital/dashboard");
+
       } else {
         setError("Invalid credentials");
       }
+
     } catch (err) {
       console.error(err);
       setError("Login failed");

@@ -28,13 +28,12 @@ const UserProfile = ({ userId }) => {
     fetchProfile();
   }, [userId]);
 
-  if (loading) return null;
-  if (!profile) return null;
+  if (loading || !profile) return null;
 
   return (
     <div style={{ position: "relative", marginBottom: "20px" }}>
       
-      {/* 🔹 Profile Image Button */}
+      {/* Profile Icon */}
       <div
         onClick={() => setShowProfile(!showProfile)}
         style={{
@@ -53,10 +52,10 @@ const UserProfile = ({ userId }) => {
         }}
         title="Click to view profile"
       >
-        {profile.name.charAt(0).toUpperCase()}
+        {profile.name?.charAt(0)?.toUpperCase() || "U"}
       </div>
 
-      {/* 🔹 Profile Details Card */}
+      {/* Profile Card */}
       {showProfile && (
         <div
           style={{
@@ -78,7 +77,7 @@ const UserProfile = ({ userId }) => {
 
           <h4>Past Treatments</h4>
 
-          {profile.treatments?.length === 0 ? (
+          {!profile.treatments || profile.treatments.length === 0 ? (
             <p>No past treatments</p>
           ) : (
             <div style={{ maxHeight: "200px", overflowY: "auto" }}>

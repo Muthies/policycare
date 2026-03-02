@@ -3,66 +3,82 @@
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../style.css";
 
 const QRPage = () => {
   const [qrUrl, setQrUrl] = useState("");
   const [qrId, setQrId] = useState("");
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const generateQR = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        const hospitalId = localStorage.getItem("hospitalId"); // ✅ FIXED
+        const hospitalId = localStorage.getItem("hospitalId");
 
-        console.log("User:", userId);
-        console.log("Hospital:", hospitalId);
-
+        // 🔥 Safety Validation
         if (!userId) {
-          alert("User not logged in");
+          alert("Please login first");
+          navigate("/login");
           return;
         }
 
         if (!hospitalId) {
-          alert("Hospital not selected properly");
+          alert("Please select hospital first");
+          navigate("/hospitals");
           return;
         }
 
+        // 🔥 Create QR in backend
         const res = await axios.post(
           "https://policycare-backend.onrender.com/api/qr/create",
-          { userId, hospitalId } // ✅ FIXED
+          { userId, hospitalId }
         );
 
         const generatedQrId = res.data.qrId;
         setQrId(generatedQrId);
 
+        // 🔥 Generate QR image
         const approvalLink = `${window.location.origin}/hospital/approve/${generatedQrId}`;
-        const url = await QRCode.toDataURL(approvalLink);
-        setQrUrl(url);
+        const qrImage = await QRCode.toDataURL(approvalLink);
+
+        setQrUrl(qrImage);
+        setLoading(false);
 
       } catch (error) {
-        if (error.response && error.response.data.message) {
+        setLoading(false);
+
+        if (error.response?.data?.message) {
           alert(error.response.data.message);
         } else {
           console.error("QR Generation Error:", error);
-          alert("Failed to generate QR");
+          alert("QR generation failed");
         }
       }
     };
 
     generateQR();
-  }, []);
+  }, [navigate]);
 
-  // 🔥 Send to Hospital
+  // 🔥 Send Request to Hospital
   const handleSendToHospital = async () => {
     try {
+      if (!qrId) {
+        alert("QR not generated properly");
+        return;
+      }
+
       await axios.put(
         `https://policycare-backend.onrender.com/api/qr/request/${qrId}`
       );
 
       setSent(true);
-      alert("Request sent to hospital successfully");
+      alert("Request sent successfully to hospital");
+
     } catch (error) {
       console.error("Send Error:", error);
       alert("Failed to send request");
@@ -70,26 +86,28 @@ const QRPage = () => {
   };
 
   return (
-    <div className="qr-container" style={{ position: "relative" }}>
-      {qrUrl && !sent && (
-        <button onClick={handleSendToHospital} className="send-btn">
-          Send to Hospital
-        </button>
-      )}
+    <div className="qr-container">
 
       <h2>Your Treatment QR Code</h2>
 
-      {qrUrl ? (
-        <img src={qrUrl} alt="QR Code" className="qr-image" />
-      ) : (
-        <p>Generating QR...</p>
+      {loading && <p>Generating QR...</p>}
+
+      {!loading && qrUrl && (
+        <>
+          {!sent && (
+            <button onClick={handleSendToHospital} className="send-btn">
+              Send to Hospital
+            </button>
+          )}
+
+          <img src={qrUrl} alt="QR Code" className="qr-image" />
+
+          <a href={qrUrl} download="treatment_qr.png" className="btn-download">
+            Download QR
+          </a>
+        </>
       )}
 
-      {qrUrl && (
-        <a href={qrUrl} download="treatment_qr.png" className="btn-download">
-          Download QR
-        </a>
-      )}
     </div>
   );
 };

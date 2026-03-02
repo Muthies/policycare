@@ -7,39 +7,46 @@ import { useNavigate } from "react-router-dom";
 const HospitalDashboard = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        // ✅ Get hospitalUsername from localStorage instead of hospitalId
-        const hospitalUsername = localStorage.getItem("hospitalUsername")?.trim();
-        console.log("Hospital Username in dashboard:", hospitalUsername); // debug
+        const hospitalId = localStorage.getItem("hospitalId");
 
-        if (!hospitalUsername) {
-          console.error("No hospitalUsername found in localStorage");
+        if (!hospitalId) {
+          alert("Hospital not logged in");
+          navigate("/hospital/login");
           return;
         }
 
-        // ✅ Fetch requests for this hospitalUsername
         const res = await axios.get(
-          `https://policycare-backend.onrender.com/api/qr/hospital/${hospitalUsername}`
+          `https://policycare-backend.onrender.com/api/qr/hospital/${hospitalId}`
         );
-        console.log("Requests fetched:", res.data); // debug
+
         setRequests(res.data);
+        setLoading(false);
+
       } catch (err) {
         console.error("Failed to fetch requests:", err);
+        setLoading(false);
       }
     };
 
     fetchRequests();
-  }, []);
+  }, [navigate]);
 
   return (
-    <div style={{ maxWidth: "800px", margin: "20px auto" }}>
+    <div style={{ maxWidth: "900px", margin: "20px auto" }}>
       <h2>Patient Requests</h2>
-      {requests.length === 0 ? (
+
+      {loading && <p>Loading...</p>}
+
+      {!loading && requests.length === 0 && (
         <p>No requests yet</p>
-      ) : (
+      )}
+
+      {!loading && requests.length > 0 && (
         <table
           border="1"
           cellPadding="10"
@@ -65,7 +72,9 @@ const HospitalDashboard = () => {
                 <td>{req.status}</td>
                 <td>
                   <button
-                    onClick={() => navigate(`/hospital/patient/${req._id}`)}
+                    onClick={() =>
+                      navigate(`/hospital/patient/${req._id}`)
+                    }
                   >
                     View Details
                   </button>

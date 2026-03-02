@@ -7,6 +7,7 @@ import { useParams, useNavigate } from "react-router-dom";
 const HospitalApprove = () => {
   const { qrId } = useParams();
   const navigate = useNavigate();
+
   const [patient, setPatient] = useState(null);
   const [qrStatus, setQrStatus] = useState("");
   const [loading, setLoading] = useState(true);
@@ -15,14 +16,22 @@ const HospitalApprove = () => {
   useEffect(() => {
     const fetchPatient = async () => {
       try {
+        const hospitalId = localStorage.getItem("hospitalId");
+
+        if (!hospitalId) {
+          alert("Hospital not logged in");
+          navigate("/hospital/login");
+          return;
+        }
+
         const res = await axios.get(
           `https://policycare-backend.onrender.com/api/qr/${qrId}`
         );
 
-        // qr contains user info in userId field
         setPatient(res.data.userId);
         setQrStatus(res.data.status);
         setLoading(false);
+
       } catch (error) {
         console.error("Fetch patient error:", error);
         setActionMsg("Failed to load patient details");
@@ -31,41 +40,51 @@ const HospitalApprove = () => {
     };
 
     fetchPatient();
-  }, [qrId]);
+  }, [qrId, navigate]);
 
   const handleApprove = async () => {
     try {
+      const hospitalId = localStorage.getItem("hospitalId");
+
+      if (!hospitalId) {
+        alert("Hospital not logged in");
+        return;
+      }
+
       await axios.put(
-        `https://policycare-backend.onrender.com/api/qr/approve/${qrId}`
+        `https://policycare-backend.onrender.com/api/qr/approve/${qrId}`,
+        { hospitalId } // ✅ send hospitalId for validation
       );
-      setQrStatus("completed"); // update local status
+
+      setQrStatus("completed");
       setActionMsg("Treatment Approved ✅");
+
     } catch (error) {
       console.error("Approve error:", error);
-      setActionMsg("Approval failed ❌");
+      setActionMsg(
+        error.response?.data?.message || "Approval failed ❌"
+      );
     }
   };
 
-  // Optional: Withdraw button (if you implement backend route)
-  // const handleWithdraw = async () => {
-  //   try {
-  //     await axios.put(
-  //       `https://policycare-backend.onrender.com/api/qr/withdraw/${qrId}`
-  //     );
-  //     setQrStatus("withdrawn");
-  //     setActionMsg("Request Withdrawn ❌");
-  //   } catch (error) {
-  //     console.error(error);
-  //     setActionMsg("Failed to withdraw ❌");
-  //   }
-  // };
+  if (loading)
+    return <h2 style={{ textAlign: "center" }}>Loading patient...</h2>;
 
-  if (loading) return <h2 style={{ textAlign: "center" }}>Loading patient...</h2>;
-  if (!patient) return <h2 style={{ textAlign: "center" }}>No patient found</h2>;
+  if (!patient)
+    return <h2 style={{ textAlign: "center" }}>No patient found</h2>;
 
   return (
-    <div style={{ maxWidth: "600px", margin: "50px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "10px" }}>
+    <div
+      style={{
+        maxWidth: "600px",
+        margin: "50px auto",
+        padding: "20px",
+        border: "1px solid #ccc",
+        borderRadius: "10px"
+      }}
+    >
       <h2>Patient Details</h2>
+
       <p><strong>Name:</strong> {patient.name}</p>
       <p><strong>Email:</strong> {patient.email}</p>
       <p><strong>Aadhaar:</strong> {patient.aadhaar}</p>
@@ -74,13 +93,20 @@ const HospitalApprove = () => {
 
       <div style={{ marginTop: "20px" }}>
         {qrStatus !== "completed" && (
-          <button onClick={handleApprove} style={{ marginRight: "10px" }}>Approve / Complete</button>
+          <button
+            onClick={handleApprove}
+            style={{ marginRight: "10px" }}
+          >
+            Approve / Complete
+          </button>
         )}
-        {/* Uncomment if withdraw route is implemented */}
-        {/* <button onClick={handleWithdraw} style={{ backgroundColor: "#f44336", color: "#fff" }}>Withdraw / Not Came</button> */}
       </div>
 
-      {actionMsg && <p style={{ marginTop: "20px", fontWeight: "bold" }}>{actionMsg}</p>}
+      {actionMsg && (
+        <p style={{ marginTop: "20px", fontWeight: "bold" }}>
+          {actionMsg}
+        </p>
+      )}
     </div>
   );
 };
