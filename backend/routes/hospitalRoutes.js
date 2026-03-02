@@ -15,7 +15,7 @@ router.post("/login", async (req, res) => {
     if (!hospitalUsername || !password) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        msg: "Username and password required",
       });
     }
 
@@ -24,7 +24,7 @@ router.post("/login", async (req, res) => {
     if (!hospital) {
       return res.status(400).json({
         success: false,
-        message: "Hospital not found",
+        msg: "Hospital not found",
       });
     }
 
@@ -33,28 +33,23 @@ router.post("/login", async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: "Invalid password",
+        msg: "Invalid password",
       });
     }
 
     res.json({
       success: true,
-      hospital: {
-        _id: hospital._id,
-        hospitalName: hospital.hospitalName,
-        hospitalUsername: hospital.hospitalUsername,
-      },
+      hospital,
     });
 
   } catch (error) {
-    console.error("Login error:", error);
+    console.error(error);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      msg: "Server error",
     });
   }
 });
-
 /**
  * ==========================================================
  * 🔥 GET NEARBY HOSPITALS
