@@ -51,7 +51,7 @@ app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/qr", require("./routes/qr"));
 app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/admin", adminRoutes);
 
 /* ===================== AUTH ===================== */
 
