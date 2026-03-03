@@ -1,89 +1,65 @@
 // frontend/src/components/HospitalLogin.js
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const HospitalLogin = () => {
   const navigate = useNavigate();
   const { qrId } = useParams();
+  const location = useLocation();
 
   const [hospitalUsername, setHospitalUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  /* =====================================
-     QR SCAN AUTO FLOW
-  ===================================== */
+  // Extract redirect param (from QR scan)
+  const searchParams = new URLSearchParams(location.search);
+  const redirectQR = searchParams.get("redirect") || qrId || null;
+
   useEffect(() => {
-    if (qrId) {
-      const fetchQr = async () => {
-        try {
-          const res = await axios.get(
-            `https://policycare-backend.onrender.com/api/qr/${qrId}`
-          );
-
-          const qrData = res.data;
-
-          if (!qrData || !qrData.hospitalId) {
-            setError("Invalid QR");
-            return;
-          }
-
-          // ✅ STORE hospitalId (NOT username)
-          localStorage.setItem("hospitalId", qrData.hospitalId._id);
-
-          // Go to patient approval page
-          navigate(`/hospital/patient/${qrId}`);
-
-        } catch (err) {
-          console.error(err);
-          setError("QR not valid or expired");
-        }
-      };
-
-      fetchQr();
+    // If hospital is already logged in and redirectQR exists
+    const hospitalId = localStorage.getItem("hospitalId");
+    if (hospitalId && redirectQR) {
+      navigate(`/hospital/approve/${redirectQR}`);
     }
-  }, [qrId, navigate]);
+  }, [navigate, redirectQR]);
 
   /* =====================================
-     NORMAL LOGIN
+     HANDLE HOSPITAL LOGIN
   ===================================== */
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  try {
-    console.log("Sending:", hospitalUsername, password);
+    try {
+      const res = await axios.post(
+        "https://policycare-backend.onrender.com/api/hospital/login",
+        { hospitalUsername, password }
+      );
 
-    const res = await axios.post(
-      "https://policycare-backend.onrender.com/api/hospital/login",
-      {
-        hospitalUsername,
-        password,
+      if (res.data.success) {
+        // ✅ Store only hospitalId
+        localStorage.setItem("hospitalId", res.data.hospital._id);
+
+        // Redirect to QR approve page if coming from QR scan
+        if (redirectQR) {
+          navigate(`/hospital/approve/${redirectQR}`);
+        } else {
+          navigate("/hospital/dashboard");
+        }
+      } else {
+        setError(res.data.message || "Invalid credentials");
       }
-    );
-
-    console.log("Response:", res.data);
-
-    if (res.data.success) {
-      localStorage.setItem("hospitalId", res.data.hospital._id);
-      navigate("/hospital/dashboard");
-    } else {
-      setError(res.data.message || "Invalid credentials");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
-
-  } catch (err) {
-    console.error("Full error:", err);
-
-    if (err.response) {
-      console.log("Backend error response:", err.response.data);
-      setError(err.response.data.message || "Login failed");
-    } else {
-      setError("Server not reachable");
-    }
-  }
-};
+  };
 
   return (
     <div className="login-container">
@@ -91,33 +67,37 @@ const HospitalLogin = () => {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {!qrId && (
-        <form onSubmit={handleLogin}>
-          <div>
-            <label>Hospital Username:</label>
-            <input
-              type="text"
-              value={hospitalUsername}
-              onChange={(e) => setHospitalUsername(e.target.value)}
-              required
-            />
-          </div>
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>Hospital Username:</label>
+          <input
+            type="text"
+            value={hospitalUsername}
+            onChange={(e) => setHospitalUsername(e.target.value)}
+            required
+          />
+        </div>
 
-          <div>
-            <label>Password:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
 
-          <button type="submit">Login</button>
-        </form>
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
+
+      {redirectQR && !error && (
+        <p style={{ marginTop: "10px" }}>
+          After login, you will be redirected to the QR approval page...
+        </p>
       )}
-
-      {qrId && <p>Redirecting to patient details...</p>}
     </div>
   );
 };

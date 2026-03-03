@@ -41,7 +41,7 @@ function App() {
         {/* Hospital pages */}
         <Route path="/hospital/login" element={<HospitalLogin />} />          {/* ✅ login */}
         <Route path="/hospital/dashboard" element={<HospitalDashboard />} />  {/* ✅ dashboard */}
-        <Route path="/hospital/patient/:qrId" element={<HospitalApprove />} /> {/* ✅ approve/withdraw */}
+        <Route path="/hospital/approve/:qrId" element={<HospitalApprove />} />
       </Routes>
     </>
   );

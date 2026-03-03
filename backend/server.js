@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 // Routes
 const reviewRoutes = require("./routes/reviewRoutes");
 const hospitalRoutes = require("./routes/hospitalRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 // Models
 const User = require("./models/User");
@@ -49,6 +50,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/qr", require("./routes/qr"));
+app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 
 /* ===================== AUTH ===================== */
@@ -220,26 +222,7 @@ app.post("/api/chat", async (req, res) => {
 
 /* ===================== ADMIN ===================== */
 
-app.get("/api/admin/hospitals", async (req, res) => {
-  try {
-    const hospitals = await Hospital.find();
-    res.json(hospitals);
-  } catch (err) {
-    res.status(500).json({ msg: "Server error" });
-  }
-});
 
-app.get("/api/admin/reviews", async (req, res) => {
-  try {
-    const reviews = await Review.find()
-      .populate("user", "name email")
-      .populate("hospital", "hospitalName address");
-
-    res.json(reviews);
-  } catch (err) {
-    res.status(500).json({ msg: "Server error" });
-  }
-});
 
 /* ===================== START SERVER ===================== */
 const PORT = process.env.PORT || 5000;

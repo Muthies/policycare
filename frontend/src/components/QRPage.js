@@ -49,6 +49,11 @@ const QRPage = () => {
         setQrUrl(qrImage);
         setLoading(false);
 
+        // 🔥 Check if request already pending
+        if (res.data.status === "pending") {
+          setSent(true);
+        }
+
       } catch (error) {
         setLoading(false);
 
@@ -72,22 +77,27 @@ const QRPage = () => {
         return;
       }
 
-      await axios.put(
+      const res = await axios.put(
         `https://policycare-backend.onrender.com/api/qr/request/${qrId}`
       );
 
       setSent(true);
-      alert("Request sent successfully to hospital");
+      alert(res.data.message || "Request sent successfully to hospital");
 
     } catch (error) {
       console.error("Send Error:", error);
-      alert("Failed to send request");
+
+      // ✅ Show backend message if request already pending
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert("Failed to send request");
+      }
     }
   };
 
   return (
     <div className="qr-container">
-
       <h2>Your Treatment QR Code</h2>
 
       {loading && <p>Generating QR...</p>}
@@ -107,7 +117,6 @@ const QRPage = () => {
           </a>
         </>
       )}
-
     </div>
   );
 };

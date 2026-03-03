@@ -1,94 +1,171 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./AdminDashboard.css"; // import the CSS
+import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab, setActiveTab] = useState("overview");
+
   const [users, setUsers] = useState([]);
   const [hospitals, setHospitals] = useState([]);
   const [reviews, setReviews] = useState([]);
-
-  const policies = [
-    "Star Health", "ICICI Lombard", "SBI General", "HDFC ERGO",
-    "Aditya Birla Health", "IFFCO Tokio", "Niva Bupa", "Digit Insurance",
-    "Bajaj Allianz", "Reliance Health", "Future Generali", "New India Assurance",
-    "Oriental Insurance", "United India Insurance", "Tata AIG", "Care Health",
-    "Chola MS", "Liberty General", "Manipal Cigna", "Max Bupa"
-  ];
+  const [policies, setPolicies] = useState([]);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalHospitals: 0,
+    totalRequests: 0,
+    pending: 0,
+    completed: 0,
+    accepted: 0,
+    monthlyUsers: 0,
+    monthlyRequests: 0,
+  });
 
   useEffect(() => {
-    if (activeTab === "users") {
-      axios.get("https://policycare-backend.onrender.com/api/admin/users")
-        .then(res => setUsers(res.data))
-        .catch(err => console.error("Error fetching users:", err));
-    } else if (activeTab === "hospitals") {
-      axios.get("https://policycare-backend.onrender.com/api/admin/hospitals")
-        .then(res => setHospitals(res.data))
-        .catch(err => console.error("Error fetching hospitals:", err));
-    } else if (activeTab === "reviews") {
-      axios.get("https://policycare-backend.onrender.com/api/admin/reviews")
-        .then(res => setReviews(res.data))
-        .catch(err => console.error("Error fetching reviews:", err));
+    fetchAllData();
+  }, []);
+
+  const fetchAllData = async () => {
+    try {
+      const [
+        usersRes,
+        hospitalsRes,
+        reviewsRes,
+        policiesRes,
+        statsRes,
+      ] = await Promise.all([
+        axios.get("https://policycare-backend.onrender.com/api/admin/users"),
+        axios.get("https://policycare-backend.onrender.com/api/admin/hospitals"),
+        axios.get("https://policycare-backend.onrender.com/api/admin/reviews"),
+        axios.get("https://policycare-backend.onrender.com/api/admin/policies"),
+        axios.get("https://policycare-backend.onrender.com/api/admin/stats"),
+      ]);
+
+      setUsers(usersRes.data);
+      setHospitals(hospitalsRes.data);
+      setReviews(reviewsRes.data);
+      setPolicies(policiesRes.data);
+      setStats(statsRes.data);
+    } catch (err) {
+      console.error("Admin fetch error:", err);
     }
-  }, [activeTab]);
+  };
 
   return (
     <div className="admin-container">
+
       {/* Sidebar */}
       <div className="sidebar">
-        <h2>Admin Panel</h2>
+        <h2>PolicyCare</h2>
+        <p className="admin-label">Admin Panel</p>
         <ul>
-          <li className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>Users</li>
-          <li className={activeTab === "hospitals" ? "active" : ""} onClick={() => setActiveTab("hospitals")}>Hospitals</li>
-          <li className={activeTab === "policies" ? "active" : ""} onClick={() => setActiveTab("policies")}>Policies</li>
-          <li className={activeTab === "reviews" ? "active" : ""} onClick={() => setActiveTab("reviews")}>Reviews</li>
+          <li onClick={() => setActiveTab("overview")} className={activeTab==="overview"?"active":""}>Dashboard</li>
+          <li onClick={() => setActiveTab("users")} className={activeTab==="users"?"active":""}>Users</li>
+          <li onClick={() => setActiveTab("hospitals")} className={activeTab==="hospitals"?"active":""}>Hospitals</li>
+          <li onClick={() => setActiveTab("policies")} className={activeTab==="policies"?"active":""}>Policies</li>
+          <li onClick={() => setActiveTab("reviews")} className={activeTab==="reviews"?"active":""}>Reviews</li>
         </ul>
       </div>
 
-      {/* Main Content */}
+      {/* Main */}
       <div className="main-content">
-        {activeTab === "users" && (
-          <div>
-            <h1>Total Users: {users.length}</h1>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Address</th>
-                  <th>State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(u => (
-                  <tr key={u._id}>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-                    <td>{u.address}</td>
-                    <td>{u.state}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+
+        {/* OVERVIEW DASHBOARD */}
+        {activeTab === "overview" && (
+          <>
+            <h1>Dashboard Overview</h1>
+
+            <div className="stats-grid">
+              <div className="stat-card gradient1">
+                <h3>Total Users</h3>
+                <p>{stats.totalUsers}</p>
+              </div>
+              <div className="stat-card gradient2">
+                <h3>Total Hospitals</h3>
+                <p>{stats.totalHospitals}</p>
+              </div>
+              <div className="stat-card gradient3">
+                <h3>Total Requests</h3>
+                <p>{stats.totalRequests}</p>
+              </div>
+              <div className="stat-card gradient4">
+                <h3>Accepted</h3>
+                <p>{stats.accepted}</p>
+              </div>
+            </div>
+
+            <div className="stats-grid small">
+              <div className="stat-card light">
+                <h3>Pending Requests</h3>
+                <p>{stats.pending}</p>
+              </div>
+              <div className="stat-card light">
+                <h3>Completed</h3>
+                <p>{stats.completed}</p>
+              </div>
+              <div className="stat-card light">
+                <h3>Monthly Users</h3>
+                <p>{stats.monthlyUsers}</p>
+              </div>
+              <div className="stat-card light">
+                <h3>Monthly Requests</h3>
+                <p>{stats.monthlyRequests}</p>
+              </div>
+            </div>
+          </>
         )}
 
-        {activeTab === "hospitals" && (
-          <div>
-            <h1>Total Hospitals: {hospitals.length}</h1>
-            {hospitals.length > 0 ? (
+        {/* USERS */}
+        {activeTab === "users" && (
+          <>
+            <h1>Users ({users.length})</h1>
+            <div className="table-container">
               <table>
                 <thead>
                   <tr>
-                    <th>Hospital Name</th>
-                    <th>Address</th>
-                    <th>Insurance Provider</th>
-                    <th>Max Claim Amount</th>
-                    <th>Treatments Covered</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>State</th>
+                    <th>Policies</th>
+                    <th>QR Requests</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {hospitals.map(h => (
+                  {users.map((u) => (
+                    <tr key={u._id}>
+                      <td>{u.name}</td>
+                      <td>{u.email}</td>
+                      <td>{u.phone || "-"}</td>
+                      <td>{u.state || "-"}</td>
+                      <td>{u.policies?.join(", ") || "-"}</td>
+                      <td>
+                        <span className="badge">{u.qrRequests?.length || 0}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* HOSPITALS */}
+        {activeTab === "hospitals" && (
+          <>
+            <h1>Hospitals ({hospitals.length})</h1>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Provider</th>
+                    <th>Max Claim</th>
+                    <th>Covered Treatments</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {hospitals.map((h) => (
                     <tr key={h._id}>
                       <td>{h.hospitalName}</td>
                       <td>{h.address}</td>
@@ -99,51 +176,43 @@ const AdminDashboard = () => {
                   ))}
                 </tbody>
               </table>
-            ) : <p>No hospitals to display.</p>}
-          </div>
+            </div>
+          </>
         )}
 
+        {/* POLICIES */}
         {activeTab === "policies" && (
-          <div>
+          <>
             <h1>Insurance Policies</h1>
-            <table>
-              <thead>
-                <tr><th>Policy Name</th></tr>
-              </thead>
-              <tbody>
-                {policies.map((p, idx) => <tr key={idx}><td>{p}</td></tr>)}
-              </tbody>
-            </table>
-          </div>
+            <div className="policy-grid">
+              {policies.map((p) => (
+                <div className="policy-card" key={p._id}>
+                  <h3>{p.name}</h3>
+                  <p>{p.details}</p>
+                  <span>{p.totalUsers || 0} Users</span>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
+        {/* REVIEWS */}
         {activeTab === "reviews" && (
-          <div>
-            <h1>Reviews</h1>
-            {reviews.length > 0 ? (
-              <table>
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Hospital</th>
-                    <th>Rating</th>
-                    <th>Comment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reviews.map(r => (
-                    <tr key={r._id}>
-                      <td>{r.user?.name || r.user}</td>
-                      <td>{r.hospital?.hospitalName || r.hospital}</td>
-                      <td>{r.rating}</td>
-                      <td>{r.comment || "-"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : <p>No reviews to display.</p>}
-          </div>
+          <>
+            <h1>Reviews ({reviews.length})</h1>
+            <div className="review-grid">
+              {reviews.map((r) => (
+                <div className="review-card" key={r._id}>
+                  <h4>{r.user?.name}</h4>
+                  <p><strong>Hospital:</strong> {r.hospital?.hospitalName}</p>
+                  <p><strong>Rating:</strong> ⭐ {r.rating}</p>
+                  <p>{r.comment}</p>
+                </div>
+              ))}
+            </div>
+          </>
         )}
+
       </div>
     </div>
   );
