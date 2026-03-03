@@ -50,34 +50,40 @@ const HospitalLogin = () => {
      NORMAL LOGIN
   ===================================== */
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    try {
-      const res = await axios.post(
-        "https://policycare-backend.onrender.com/api/hospital/login",
-        {
-          hospitalUsername,
-          password,
-        }
-      );
+  try {
+    console.log("Sending:", hospitalUsername, password);
 
-      if (res.data.success) {
-
-        // ✅ STORE hospitalId from backend response
-        localStorage.setItem("hospitalId", res.data.hospital._id);
-
-        navigate("/hospital/dashboard");
-
-      } else {
-        setError("Invalid credentials");
+    const res = await axios.post(
+      "https://policycare-backend.onrender.com/api/hospital/login",
+      {
+        hospitalUsername,
+        password,
       }
+    );
 
-    } catch (err) {
-      console.error(err);
-      setError("Login failed");
+    console.log("Response:", res.data);
+
+    if (res.data.success) {
+      localStorage.setItem("hospitalId", res.data.hospital._id);
+      navigate("/hospital/dashboard");
+    } else {
+      setError(res.data.message || "Invalid credentials");
     }
-  };
+
+  } catch (err) {
+    console.error("Full error:", err);
+
+    if (err.response) {
+      console.log("Backend error response:", err.response.data);
+      setError(err.response.data.message || "Login failed");
+    } else {
+      setError("Server not reachable");
+    }
+  }
+};
 
   return (
     <div className="login-container">

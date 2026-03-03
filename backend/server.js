@@ -124,42 +124,47 @@ app.post("/api/login", async (req, res) => {
 });
 app.post("/api/hospital/login", async (req, res) => {
   try {
-    const { hospitalId, password } = req.body;
+    const { hospitalUsername, password } = req.body;
 
-    if (!hospitalId || !password) {
-      return res.status(400).json({ success: false, msg: "Hospital ID and password required" });
+    if (!hospitalUsername || !password) {
+      return res.status(400).json({
+        success: false,
+        msg: "Username and password required",
+      });
     }
 
-    const hospital = await Hospital.findOne({ hospitalId });
+    const hospital = await Hospital.findOne({ hospitalUsername });
+
     if (!hospital) {
-      return res.status(400).json({ success: false, msg: "Invalid credentials" });
+      return res.status(400).json({
+        success: false,
+        msg: "Hospital not found",
+      });
     }
 
-    // Plain text comparison
-    if (hospital.password !== password) {
-      return res.status(400).json({ success: false, msg: "Invalid credentials" });
+    const isMatch = await bcrypt.compare(password, hospital.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid password",
+      });
     }
 
-    res.json({ success: true, hospitalId: hospital.hospitalId, name: hospital.hospitalName });
+    res.json({
+      success: true,
+      hospital: {
+        _id: hospital._id,
+        hospitalName: hospital.hospitalName,
+        hospitalUsername: hospital.hospitalUsername,
+      },
+    });
+
   } catch (err) {
     console.error("Hospital login error:", err.message);
     res.status(500).json({ success: false, msg: "Server error" });
   }
 });
-/* ===================== HOSPITAL FILTER ===================== */
-app.get("/api/hospitals/insurance/:provider", async (req, res) => {
-  try {
-    const hospitals = await Hospital.find({
-      insuranceProvider: req.params.provider,
-    });
-
-    res.json(hospitals);
-  } catch (err) {
-    console.error("Hospital filter error:", err.message);
-    res.status(500).json({ msg: "Server error" });
-  }
-});
-
 /* ===================== CHATBOT ===================== */
 app.post("/api/chat", async (req, res) => {
   try {
