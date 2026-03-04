@@ -73,7 +73,7 @@ const HospitalDashboard = () => {
                 <td>
                   <button
                     onClick={() =>
-                      navigate(`/hospital/patient/${req._id}`)
+                      navigate(`/hospital/approve/${req._id}`)
                     }
                   >
                     View Details

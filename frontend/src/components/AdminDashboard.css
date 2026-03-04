@@ -1,0 +1,229 @@
+/* =========================
+   THEME COLORS
+========================= */
+:root {
+  --primary: #0ea5e9;        /* Sky Blue */
+  --secondary: #10b981;      /* Green */
+  --light-bg: #f0f9ff;       /* Very light sky */
+  --white: #ffffff;
+  --dark-text: #0f172a;
+  --light-text: #64748b;
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+.admin-layout {
+  display: flex;
+  height: 100vh;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background-color: var(--light-bg);
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.admin-sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  color: var(--white);
+  padding: 35px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header h2 {
+  font-size: 24px;   /* Bigger text */
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.sidebar-header span {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.sidebar-nav {
+  margin-top: 45px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Sidebar Buttons */
+.sidebar-nav button {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  font-size: 16px;   /* Bigger */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.sidebar-nav button:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateX(4px);
+}
+
+.sidebar-nav button.active {
+  background: white;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+.admin-content {
+  flex: 1;
+  padding: 50px;
+  overflow-y: auto;
+}
+
+.content-header h1 {
+  font-size: 30px;   /* Bigger heading */
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 35px;
+}
+
+/* =========================
+   DASHBOARD CARDS
+========================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  background: var(--white);
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(14,165,233,0.1);
+  transition: 0.3s ease;
+  border-left: 6px solid var(--secondary);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.card span {
+  font-size: 16px;
+  color: var(--light-text);
+}
+
+.card h2 {
+  margin-top: 12px;
+  font-size: 34px;  /* BIG numbers */
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* =========================
+   TABLE
+========================= */
+.table-wrapper {
+  background: var(--white);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(14,165,233,0.08);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary);
+  border-bottom: 2px solid #e0f2fe;
+}
+
+td {
+  padding: 16px 14px;
+  font-size: 15px;
+  color: var(--dark-text);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+tr:hover {
+  background-color: #f0f9ff;
+}
+
+/* =========================
+   POLICY CARDS
+========================= */
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+.policy-card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(16,185,129,0.08);
+  border-top: 5px solid var(--primary);
+  transition: 0.3s ease;
+}
+
+.policy-card:hover {
+  transform: translateY(-6px);
+}
+
+.policy-card h3 {
+  font-size: 20px;
+  color: var(--secondary);
+  margin-bottom: 12px;
+}
+
+.policy-card p {
+  font-size: 15px;
+  color: var(--light-text);
+  margin-bottom: 12px;
+}
+
+.policy-card span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* =========================
+   REVIEW CARDS
+========================= */
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+.review-card {
+  background: white;
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(14,165,233,0.07);
+  border-left: 5px solid var(--secondary);
+}
+
+.review-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.review-card p {
+  font-size: 15px;
+  color: var(--light-text);
+  margin-bottom: 6px;
+}

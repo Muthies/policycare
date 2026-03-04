@@ -23,6 +23,12 @@ const HospitalApprove = () => {
           return;
         }
 
+        if (!qrId) {
+          setActionMsg("Invalid QR ID");
+          setLoading(false);
+          return;
+        }
+
         const res = await axios.get(
           `https://policycare-backend.onrender.com/api/qr/${qrId}`
         );
@@ -48,12 +54,13 @@ const HospitalApprove = () => {
   }, [qrId, navigate]);
 
   const handleApproveClick = () => {
-    setShowPassword(true); // show password input
+    setShowPassword(true);
   };
 
   const handleApproveSubmit = async (e) => {
     e.preventDefault();
     setApproving(true);
+
     try {
       const hospitalId = localStorage.getItem("hospitalId");
       if (!hospitalId) {
@@ -61,15 +68,15 @@ const HospitalApprove = () => {
         return;
       }
 
-      const res = await axios.put(
-        `https://policycare-backend.onrender.com/api/qr/approve/${qrId}`,
-        { hospitalId, password }
+      await axios.put(
+        `https://policycare-backend.onrender.com/api/qr/approve/${qrId}`
       );
 
       setQrStatus("completed");
       setActionMsg("Treatment Approved ✅");
       setShowPassword(false);
       setPassword("");
+
     } catch (error) {
       console.error("Approve error:", error);
       setActionMsg(
@@ -80,11 +87,23 @@ const HospitalApprove = () => {
     }
   };
 
-  if (loading) return <h2 style={{ textAlign: "center" }}>Loading patient...</h2>;
-  if (!patient) return <h2 style={{ textAlign: "center" }}>No patient found</h2>;
+  if (loading)
+    return <h2 style={{ textAlign: "center" }}>Loading patient...</h2>;
+
+  if (!patient)
+    return <h2 style={{ textAlign: "center" }}>{actionMsg || "No patient found"}</h2>;
 
   return (
-    <div style={{ maxWidth: "600px", margin: "50px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "10px" ,backgroundColor:"mintcream"}}>
+    <div
+      style={{
+        maxWidth: "600px",
+        margin: "50px auto",
+        padding: "20px",
+        border: "1px solid #ccc",
+        borderRadius: "10px",
+        backgroundColor: "mintcream",
+      }}
+    >
       <h2>Patient Details</h2>
       <p><strong>Name:</strong> {patient.name}</p>
       <p><strong>Email:</strong> {patient.email}</p>
@@ -114,7 +133,11 @@ const HospitalApprove = () => {
         </form>
       )}
 
-      {actionMsg && <p style={{ marginTop: "20px", fontWeight: "bold" }}>{actionMsg}</p>}
+      {actionMsg && (
+        <p style={{ marginTop: "20px", fontWeight: "bold" }}>
+          {actionMsg}
+        </p>
+      )}
     </div>
   );
 };
