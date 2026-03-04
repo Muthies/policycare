@@ -2,78 +2,67 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
+    name: { 
+      type: String, 
+      required: true, 
+      trim: true 
     },
 
-    email: {
-      type: String,
-      required: true,
-      unique: true,
+    email: { 
+      type: String, 
+      required: true, 
+      unique: true, 
       lowercase: true,
-      trim: true,
+      trim: true 
     },
 
-    password: {
-      type: String,
-      required: true,
+    password: { 
+      type: String, 
+      required: true 
     },
 
-    address: {
-      type: String,
-      required: true,
+    address: { 
+      type: String, 
+      required: true 
     },
 
-    state: {
-      type: String,
-      required: true,
+    state: { 
+      type: String, 
+      required: true 
     },
 
-    aadhaar: {
-      type: String,
-      required: true,
-      unique: true,
-      match: /^\d{12}$/, // must be 12 digits
+    aadhaar: { 
+      type: String, 
+      required: true 
     },
 
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
+    role: { 
+      type: String, 
+      enum: ["user", "admin"], 
+      default: "user" 
     },
 
-    /* ================= POLICIES ================= */
-    policies: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Policy",
-      },
-    ],
-
-    /* ================= TREATMENT HISTORY ================= */
+    // 🔹 Treatment History
     treatments: [
       {
         hospitalId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Hospital",
+          ref: "Hospital"
         },
         qrId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "QR",
+          ref: "QR"
         },
         status: {
           type: String,
-          enum: ["pending", "approved", "completed"],
-          default: "completed",
+          default: "completed"
         },
         date: {
           type: Date,
-          default: Date.now,
-        },
-      },
-    ],
+          default: Date.now
+        }
+      }
+    ]
   },
   { timestamps: true }
 );

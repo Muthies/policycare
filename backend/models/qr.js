@@ -1,48 +1,45 @@
+// models/qr.js
+
 const mongoose = require("mongoose");
 
 const qrSchema = new mongoose.Schema(
   {
-    /* ================= USER ================= */
+    // 🔹 User reference
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    /* ================= HOSPITAL ================= */
+    // 🔹 Hospital reference (USE ObjectId, NOT username)
     hospitalId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Hospital",
       required: true,
     },
 
-    /* ================= STATUS ================= */
+    // 🔹 Status of QR
     status: {
       type: String,
-      enum: ["pending", "approved", "completed"],
+      enum: ["pending", "requested", "completed"],
       default: "pending",
     },
 
-    /* ================= APPROVAL DATE ================= */
+    // 🔹 Approval date (when hospital approves)
     approvedAt: {
       type: Date,
     },
 
-    /* ================= COMPLETION DATE ================= */
-    completedAt: {
-      type: Date,
-    },
-
-    /* ================= DAILY LIMIT TRACK ================= */
+    // 🔹 Request date (for one request per hospital per day rule)
     requestDate: {
       type: String,
       default: () => new Date().toISOString().split("T")[0], // YYYY-MM-DD
     },
   },
-  { timestamps: true }
+  { timestamps: true } // automatically adds createdAt & updatedAt
 );
 
-/* 🔥 Prevent duplicate request same hospital same day */
+// 🔥 Prevent duplicate request for same hospital same day by same user
 qrSchema.index(
   { userId: 1, hospitalId: 1, requestDate: 1 },
   { unique: true }

@@ -20,7 +20,7 @@ const QRPage = () => {
         const userId = localStorage.getItem("userId");
         const hospitalId = localStorage.getItem("hospitalId");
 
-        // 🔥 Safety Validation
+        // ✅ Safety Validation
         if (!userId) {
           alert("Please login first");
           navigate("/login");
@@ -33,26 +33,33 @@ const QRPage = () => {
           return;
         }
 
-        // 🔥 Create QR in backend
+        // ✅ Create or get existing QR
         const res = await axios.post(
           "https://policycare-backend.onrender.com/api/qr/create",
           { userId, hospitalId }
         );
 
-        const generatedQrId = res.data.qrId;
+        // 🔥 IMPORTANT: Backend now returns full QR object
+        const generatedQrId = res.data._id;
+
+        if (!generatedQrId) {
+          alert("QR generation failed");
+          return;
+        }
+
         setQrId(generatedQrId);
 
-        // 🔥 Generate QR image
+        // If already requested earlier
+        if (res.data.status === "requested") {
+          setSent(true);
+        }
+
+        // ✅ Generate QR image
         const approvalLink = `${window.location.origin}/hospital/approve/${generatedQrId}`;
         const qrImage = await QRCode.toDataURL(approvalLink);
 
         setQrUrl(qrImage);
         setLoading(false);
-
-        // 🔥 Check if request already pending
-        if (res.data.status === "pending") {
-          setSent(true);
-        }
 
       } catch (error) {
         setLoading(false);
@@ -69,7 +76,7 @@ const QRPage = () => {
     generateQR();
   }, [navigate]);
 
-  // 🔥 Send Request to Hospital
+  // ✅ Send Request to Hospital
   const handleSendToHospital = async () => {
     try {
       if (!qrId) {
@@ -87,7 +94,6 @@ const QRPage = () => {
     } catch (error) {
       console.error("Send Error:", error);
 
-      // ✅ Show backend message if request already pending
       if (error.response?.data?.message) {
         alert(error.response.data.message);
       } else {
@@ -108,6 +114,12 @@ const QRPage = () => {
             <button onClick={handleSendToHospital} className="send-btn">
               Send to Hospital
             </button>
+          )}
+
+          {sent && (
+            <p style={{ color: "green", fontWeight: "bold" }}>
+              Request Sent to Hospital ✅
+            </p>
           )}
 
           <img src={qrUrl} alt="QR Code" className="qr-image" />

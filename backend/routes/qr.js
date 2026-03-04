@@ -9,7 +9,7 @@ const User = require("../models/User");
 const Hospital = require("../models/Hospital");
 
 /* ==============================
-   CREATE QR
+   CREATE OR GET QR (SAFE VERSION)
 ============================== */
 router.post("/create", async (req, res) => {
   try {
@@ -30,32 +30,39 @@ router.post("/create", async (req, res) => {
       });
     }
 
-    // Check if hospital exists
+    // Check hospital exists
     const hospital = await Hospital.findById(hospitalId);
     if (!hospital) {
       return res.status(404).json({ message: "Hospital not found" });
     }
 
-    const qr = new QR({
+    const today = new Date().toISOString().split("T")[0];
+
+    // 🔥 Check if QR already exists today
+    let qr = await QR.findOne({
       userId,
       hospitalId,
-      status: "pending",
+      requestDate: today,
     });
 
-    await qr.save();
-
-    res.status(201).json({ qrId: qr._id });
-  } catch (err) {
-    if (err.code === 11000) {
-      return res.status(400).json({
-        message: "You have already requested this hospital today",
+    // 🔥 If not exists → create new
+    if (!qr) {
+      qr = await QR.create({
+        userId,
+        hospitalId,
+        status: "pending",
       });
     }
 
+    // ✅ Always return full QR object
+    res.status(200).json(qr);
+
+  } catch (err) {
     console.error("QR Create Error:", err);
     res.status(500).json({ message: "QR creation failed" });
   }
 });
+
 
 /* ==============================
    SEND REQUEST TO HOSPITAL
@@ -71,15 +78,21 @@ router.put("/request/:qrId", async (req, res) => {
     const qr = await QR.findById(qrId);
     if (!qr) return res.status(404).json({ message: "QR not found" });
 
+    if (qr.status === "requested") {
+      return res.status(400).json({ message: "Already requested" });
+    }
+
     qr.status = "requested";
     await qr.save();
 
     res.json({ message: "Request sent successfully" });
+
   } catch (err) {
     console.error("QR Request Error:", err);
     res.status(500).json({ message: "Failed to send request" });
   }
 });
+
 
 /* ==============================
    GET REQUESTS FOR HOSPITAL
@@ -95,17 +108,21 @@ router.get("/hospital/:hospitalId", async (req, res) => {
     const requests = await QR.find({
       hospitalId,
       status: "requested",
-    }).populate("userId", "name email aadhaar treatments");
+    })
+      .populate("userId", "name email aadhaar treatments")
+      .populate("hospitalId", "hospitalName hospitalUsername");
 
     res.json(requests);
+
   } catch (err) {
     console.error("Fetch Hospital Requests Error:", err);
     res.status(500).json({ message: "Failed to fetch requests" });
   }
 });
 
+
 /* ==============================
-   GET SINGLE QR BY ID
+   GET SINGLE QR
 ============================== */
 router.get("/:qrId", async (req, res) => {
   try {
@@ -122,11 +139,13 @@ router.get("/:qrId", async (req, res) => {
     if (!qr) return res.status(404).json({ message: "QR not found" });
 
     res.json(qr);
+
   } catch (err) {
     console.error("Fetch QR Error:", err);
     res.status(500).json({ message: "Failed to fetch QR" });
   }
 });
+
 
 /* ==============================
    APPROVE QR
@@ -158,11 +177,13 @@ router.put("/approve/:qrId", async (req, res) => {
     });
 
     res.json({ message: "Treatment Approved & Updated" });
+
   } catch (err) {
     console.error("QR Approve Error:", err);
     res.status(500).json({ message: "Approval failed" });
   }
 });
+
 
 /* ==============================
    WITHDRAW QR
@@ -182,6 +203,7 @@ router.put("/withdraw/:qrId", async (req, res) => {
     await qr.save();
 
     res.json({ message: "Request Withdrawn" });
+
   } catch (err) {
     console.error("QR Withdraw Error:", err);
     res.status(500).json({ message: "Failed to withdraw" });
