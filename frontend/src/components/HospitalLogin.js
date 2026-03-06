@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
+import "../style.css";
 
 const HospitalLogin = () => {
   const navigate = useNavigate();
@@ -62,14 +63,16 @@ const HospitalLogin = () => {
   };
 
   return (
-    <div className="login-container">
-      <h2>Hospital Login</h2>
+  <div className="form-container">
+    <div className="login-box">
+      <h2 className="login-title">Hospital Login</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
 
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Hospital Username:</label>
+      <form onSubmit={handleLogin} className="login-form">
+
+        <div className="input-group">
+          <label>Hospital Username</label>
           <input
             type="text"
             value={hospitalUsername}
@@ -78,8 +81,8 @@ const HospitalLogin = () => {
           />
         </div>
 
-        <div>
-          <label>Password:</label>
+        <div className="input-group">
+          <label>Password</label>
           <input
             type="password"
             value={password}
@@ -88,18 +91,19 @@ const HospitalLogin = () => {
           />
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" className="login-button" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
       {redirectQR && !error && (
-        <p style={{ marginTop: "10px" }}>
-          After login, you will be redirected to the QR approval page...
+        <p className="redirect-msg">
+          After login you will be redirected to QR approval page
         </p>
       )}
     </div>
-  );
+  </div>
+);
 };
 
 export default HospitalLogin;

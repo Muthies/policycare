@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     totalRequests: 0,
     pending: 0,
     completed: 0,
-    accepted: 0,
+    approved: 0, // ✅ changed from accepted
     monthlyUsers: 0,
     monthlyRequests: 0,
   });
@@ -25,39 +25,46 @@ const AdminDashboard = () => {
   }, []);
 
   const fetchAllData = async () => {
-    try {
-      const [
-        usersRes,
-        hospitalsRes,
-        reviewsRes,
-        policiesRes,
-        statsRes,
-      ] = await Promise.all([
-        axios.get("https://policycare-backend.onrender.com/api/admin/users"),
-        axios.get("https://policycare-backend.onrender.com/api/admin/hospitals"),
-        axios.get("https://policycare-backend.onrender.com/api/admin/reviews"),
-        axios.get("https://policycare-backend.onrender.com/api/admin/policies"),
-        axios.get("https://policycare-backend.onrender.com/api/admin/stats"),
-      ]);
+  try {
+    const token = localStorage.getItem("token");
 
-      setUsers(usersRes.data);
-      setHospitals(hospitalsRes.data);
-      setReviews(reviewsRes.data);
-      setPolicies(policiesRes.data);
-      setStats(statsRes.data);
-    } catch (err) {
-      console.error("Admin fetch error:", err);
-    }
-  };
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const [
+      usersRes,
+      hospitalsRes,
+      reviewsRes,
+      policiesRes,
+      statsRes,
+    ] = await Promise.all([
+      axios.get("https://policycare-backend.onrender.com/api/admin/users", config),
+      axios.get("https://policycare-backend.onrender.com/api/admin/hospitals", config),
+      axios.get("https://policycare-backend.onrender.com/api/admin/reviews", config),
+      axios.get("https://policycare-backend.onrender.com/api/admin/policies", config),
+      axios.get("https://policycare-backend.onrender.com/api/admin/stats", config),
+    ]);
+
+    setUsers(usersRes.data);
+    setHospitals(hospitalsRes.data);
+    setReviews(reviewsRes.data);
+    setPolicies(policiesRes.data);
+    setStats(statsRes.data);
+
+  } catch (err) {
+    console.error("Admin fetch error:", err.response?.data || err.message);
+  }
+};
 
   return (
     <div className="admin-layout">
-
       {/* SIDEBAR */}
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           <h2>Admin Panel</h2>
-         
         </div>
 
         <nav className="sidebar-nav">
@@ -100,7 +107,6 @@ const AdminDashboard = () => {
 
       {/* MAIN CONTENT */}
       <main className="admin-content">
-
         <div className="content-header">
           <h1>
             {activeTab === "overview" && "Dashboard Overview"}
@@ -114,47 +120,45 @@ const AdminDashboard = () => {
         {/* OVERVIEW */}
         {activeTab === "overview" && (
           <div className="card-grid">
-
             <div className="card">
               <span>Total Users</span>
-              <h2>{stats.totalUsers}</h2>
+              <h2>{stats.totalUsers || 0}</h2>
             </div>
 
             <div className="card">
               <span>Total Hospitals</span>
-              <h2>{stats.totalHospitals}</h2>
+              <h2>{stats.totalHospitals || 0}</h2>
             </div>
 
             <div className="card">
               <span>Total Requests</span>
-              <h2>{stats.totalRequests}</h2>
+              <h2>{stats.totalRequests || 0}</h2>
             </div>
 
             <div className="card">
-              <span>Accepted</span>
-              <h2>{stats.accepted}</h2>
+              <span>Approved</span>
+              <h2>{stats.approved || 0}</h2>
             </div>
 
             <div className="card">
               <span>Pending</span>
-              <h2>{stats.pending}</h2>
+              <h2>{stats.pending || 0}</h2>
             </div>
 
             <div className="card">
               <span>Completed</span>
-              <h2>{stats.completed}</h2>
+              <h2>{stats.completed || 0}</h2>
             </div>
 
             <div className="card">
               <span>Monthly Users</span>
-              <h2>{stats.monthlyUsers}</h2>
+              <h2>{stats.monthlyUsers || 0}</h2>
             </div>
 
             <div className="card">
               <span>Monthly Requests</span>
-              <h2>{stats.monthlyRequests}</h2>
+              <h2>{stats.monthlyRequests || 0}</h2>
             </div>
-
           </div>
         )}
 
@@ -166,7 +170,6 @@ const AdminDashboard = () => {
                 <tr>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>Phone</th>
                   <th>State</th>
                   <th>Policies</th>
                   <th>QR Requests</th>
@@ -177,7 +180,6 @@ const AdminDashboard = () => {
                   <tr key={u._id}>
                     <td>{u.name}</td>
                     <td>{u.email}</td>
-                    <td>{u.phone || "-"}</td>
                     <td>{u.state || "-"}</td>
                     <td>{u.policies?.join(", ") || "-"}</td>
                     <td>{u.qrRequests?.length || 0}</td>
@@ -196,9 +198,8 @@ const AdminDashboard = () => {
                 <tr>
                   <th>Name</th>
                   <th>Address</th>
-                  <th>Provider</th>
+                  <th>Policy</th>
                   <th>Max Claim</th>
-                  <th>Covered Treatments</th>
                 </tr>
               </thead>
               <tbody>
@@ -206,9 +207,8 @@ const AdminDashboard = () => {
                   <tr key={h._id}>
                     <td>{h.hospitalName}</td>
                     <td>{h.address}</td>
-                    <td>{h.insuranceProvider}</td>
-                    <td>₹{h.maxClaimAmount}</td>
-                    <td>{h.treatmentsCovered?.join(", ")}</td>
+                    <td>{h.policyName}</td>
+                    <td>₹{h.maxClaimAmount || 0}</td>
                   </tr>
                 ))}
               </tbody>
@@ -234,7 +234,7 @@ const AdminDashboard = () => {
           <div className="review-grid">
             {reviews.map((r) => (
               <div className="review-card" key={r._id}>
-                <h4>{r.user?.name}</h4>
+                <h4>{r.user?.name || "Unknown User"}</h4>
                 <p><strong>Hospital:</strong> {r.hospital?.hospitalName}</p>
                 <p><strong>Rating:</strong> ⭐ {r.rating}</p>
                 <p>{r.comment}</p>
@@ -242,7 +242,6 @@ const AdminDashboard = () => {
             ))}
           </div>
         )}
-
       </main>
     </div>
   );
