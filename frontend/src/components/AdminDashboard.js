@@ -6,6 +6,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
 
   const [users, setUsers] = useState([]);
+  
   const [hospitals, setHospitals] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [policies, setPolicies] = useState([]);
@@ -181,8 +182,8 @@ const AdminDashboard = () => {
                     <td>{u.name}</td>
                     <td>{u.email}</td>
                     <td>{u.state || "-"}</td>
-                    <td>{u.policies?.join(", ") || "-"}</td>
-                    <td>{u.qrRequests?.length || 0}</td>
+                    <td>{u.policies?.length || 0}</td>
+                    <td>{u.treatments?.length || 0}</td>
                   </tr>
                 ))}
               </tbody>

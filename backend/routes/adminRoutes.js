@@ -10,10 +10,17 @@ const Policy = require("../models/Policy");
 /* ================= USERS ================= */
 router.get("/users", async (req, res) => {
   try {
-    const users = await User.find().populate("policies");
-    res.json(users);
+    const users = await User.find().select("-password");
+    res.json({
+      success: true,
+      users,
+    });
   } catch (err) {
-    res.status(500).json({ msg: "Error fetching users" });
+    console.error("Admin users error:", err);
+    res.status(500).json({
+      success: false,
+      msg: "Error fetching users",
+    });
   }
 });
 
@@ -21,9 +28,17 @@ router.get("/users", async (req, res) => {
 router.get("/hospitals", async (req, res) => {
   try {
     const hospitals = await Hospital.find();
-    res.json(hospitals);
+
+    res.json({
+      success: true,
+      hospitals,
+    });
   } catch (err) {
-    res.status(500).json({ msg: "Error fetching hospitals" });
+    console.error("Admin hospitals error:", err);
+    res.status(500).json({
+      success: false,
+      msg: "Error fetching hospitals",
+    });
   }
 });
 
@@ -45,9 +60,16 @@ router.get("/policies", async (req, res) => {
       })
     );
 
-    res.json(enrichedPolicies);
+    res.json({
+      success: true,
+      policies: enrichedPolicies,
+    });
   } catch (err) {
-    res.status(500).json({ msg: "Error fetching policies" });
+    console.error("Admin policies error:", err);
+    res.status(500).json({
+      success: false,
+      msg: "Error fetching policies",
+    });
   }
 });
 
@@ -59,9 +81,16 @@ router.get("/reviews", async (req, res) => {
       .populate("hospital", "hospitalName address")
       .sort({ createdAt: -1 });
 
-    res.json(reviews);
+    res.json({
+      success: true,
+      reviews,
+    });
   } catch (err) {
-    res.status(500).json({ msg: "Error fetching reviews" });
+    console.error("Admin reviews error:", err);
+    res.status(500).json({
+      success: false,
+      msg: "Error fetching reviews",
+    });
   }
 });
 
@@ -89,17 +118,24 @@ router.get("/stats", async (req, res) => {
     });
 
     res.json({
-      totalUsers,
-      totalHospitals,
-      totalRequests,
-      pending,
-      completed,
-      approved,
-      monthlyUsers,
-      monthlyRequests,
+      success: true,
+      stats: {
+        totalUsers,
+        totalHospitals,
+        totalRequests,
+        pending,
+        completed,
+        approved,
+        monthlyUsers,
+        monthlyRequests,
+      },
     });
   } catch (err) {
-    res.status(500).json({ msg: "Error fetching stats" });
+    console.error("Admin stats error:", err);
+    res.status(500).json({
+      success: false,
+      msg: "Error fetching stats",
+    });
   }
 });
 
