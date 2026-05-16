@@ -49,17 +49,16 @@ const AdminDashboard = () => {
       axios.get("https://policycare-backend.onrender.com/api/admin/stats", config),
     ]);
 
-    setUsers(usersRes.data);
-    setHospitals(hospitalsRes.data);
-    setReviews(reviewsRes.data);
-    setPolicies(policiesRes.data);
-    setStats(statsRes.data);
+    setUsers(usersRes.data.users);
+    setHospitals(hospitalsRes.data.hospitals);
+    setReviews(reviewsRes.data.reviews);
+    setPolicies(policiesRes.data.policies);
+    setStats(statsRes.data.stats);
 
   } catch (err) {
     console.error("Admin fetch error:", err.response?.data || err.message);
   }
 };
-
   return (
     <div className="admin-layout">
       {/* SIDEBAR */}
@@ -218,17 +217,19 @@ const AdminDashboard = () => {
         )}
 
         {/* POLICIES */}
-        {activeTab === "policies" && (
-          <div className="policy-grid">
-            {policies.map((p) => (
-              <div className="policy-card" key={p._id}>
-                <h3>{p.name}</h3>
-                <p>{p.details}</p>
-                <span>{p.totalUsers || 0} Users</span>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* POLICIES */}
+{activeTab === "policies" && (
+  <div className="policy-grid">
+    {policies.map((p) => (
+      <div className="policy-card" key={p._id}>
+        <h3>{p.name}</h3>
+        <p><b>Provider:</b> {p.provider}</p>
+        <p><b>Coverage:</b> ₹{p.coverageAmount}</p>
+        <p>{p.description}</p>
+      </div>
+    ))}
+  </div>
+)}
 
         {/* REVIEWS */}
         {activeTab === "reviews" && (
